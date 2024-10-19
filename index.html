@@ -12,6 +12,104 @@
     font-family: Arial, sans-serif;
     color: #fff;
   }
+  #loadingScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #1a1a2e;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  .loader {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #16213e;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  #lobby {
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    max-width: 800px;
+    margin: 50px auto;
+  }
+  .game-title {
+    font-size: 48px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px;
+  }
+  .game-subtitle {
+    font-size: 24px;
+    color: #ddd;
+    margin-bottom: 40px;
+  }
+  .stats-container {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-bottom: 40px;
+  }
+  .stat-item {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px 25px;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.3s ease;
+  }
+  .stat-item:hover {
+    transform: translateY(-5px);
+  }
+  .stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+  }
+  .stat-label {
+    font-size: 14px;
+    color: #ddd;
+  }
+  .menu-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    width: 100%;
+  }
+  .menu-item {
+    font-size: 18px;
+    padding: 15px 30px;
+    background: linear-gradient(45deg, #ff6b6b, #feca57);
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    color: #fff;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+  .menu-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
   #gameCanvas {
     width: 100%;
     height: 100%;
@@ -32,31 +130,6 @@
     height: 100%;
     background-color: #0f0;
     transition: width 0.3s;
-  }
-  #lobby {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #222;
-  }
-  .menu-item {
-    font-size: 24px;
-    margin: 10px;
-    padding: 10px 20px;
-    background-color: #444;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  .menu-item:hover {
-    background-color: #666;
-  }
-  #trophyCount, #leagueInfo, #moneyCount {
-    font-size: 20px;
-    margin-bottom: 20px;
   }
   #timerDisplay {
     position: absolute;
@@ -159,14 +232,33 @@
 </style>
 </head>
 <body>
+<div id="loadingScreen">
+  <div class="loader"></div>
+  <p>Carregando Quantio...</p>
+</div>
 <div id="lobby">
-  <div id="trophyCount">Troféus: 0</div>
-  <div id="leagueInfo">Liga: Bronze (Nível 1)</div>
-  <div id="moneyCount">Moedas: 0</div>
-  <div class="menu-item" id="startGame">Iniciar Jogo</div>
-  <div class="menu-item" id="showEvents">Eventos</div>
-  <div class="menu-item" id="showShop">Loja</div>
-  <div class="menu-item" id="showLeagues">Ligas</div>
+  <h1 class="game-title">Quantio</h1>
+  <h2 class="game-subtitle">by Calzsan</h2>
+  <div class="stats-container">
+    <div class="stat-item">
+      <div class="stat-value" id="trophyCount">0</div>
+      <div class="stat-label">Troféus</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" id="leagueInfo">Sem Liga</div>
+      <div class="stat-label">Liga</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" id="moneyCount">0</div>
+      <div class="stat-label">Moedas</div>
+    </div>
+  </div>
+  <div class="menu-container">
+    <button class="menu-item" id="startGame">Iniciar Jogo</button>
+    <button class="menu-item" id="showEvents">Eventos</button>
+    <button class="menu-item" id="showShop">Loja</button>
+    <button class="menu-item" id="showLeagues">Ligas</button>
+  </div>
 </div>
 <div id="leaguesScreen" style="display: none;">
   <h2>Ligas e Troféus</h2>
@@ -216,6 +308,12 @@ let gameTimer;
 let gameTimerInterval;
 let playerLevel = 1;
 
+let activePowerUps = {
+  shields: 0,
+  doubleProjectiles: false,
+  damageReduction: 1
+};
+
 let shields = 0;
 let doubleProjectiles = false;
 let damageReduction = 1;
@@ -226,9 +324,9 @@ let eventEliminated = false;
 let inEvent = false;
 
 const shopItems = [
-  { name: 'Escudo', cost: 100, effect: () => shields++ },
-  { name: 'Tiros 2x', cost: 200, effect: () => doubleProjectiles = true },
-  { name: 'Redução de Dano 2x', cost: 300, effect: () => damageReduction = 0.5 }
+  { name: 'Escudo', cost: 100, effect: () => activePowerUps.shields++ },
+  { name: 'Tiros 2x', cost: 200, effect: () => activePowerUps.doubleProjectiles = true },
+  { name: 'Redução de Dano 2x', cost: 300, effect: () => activePowerUps.damageReduction = 0.5 }
 ];
 
 canvas.width = window.innerWidth;
@@ -462,6 +560,78 @@ function drawSquadEnemy(enemy) {
   ctx.stroke();
 }
 
+function moveEnemies() {
+  enemies.forEach(enemy => {
+    let dx = player.x - enemy.x;
+    let dy = player.y - enemy.y;
+    let distance = Math.sqrt(dx * dx + dy * dy);
+
+    let moveX, moveY;
+
+    if (enemy.type === 'fast') {
+      moveX = dx / distance;
+      moveY = dy / distance;
+    } else {
+      if (distance < 200) {
+        moveX = -dx / distance;
+        moveY = -dy / distance;
+      } else {
+        enemy.wanderAngle += (Math.random() - 0.5) * 0.5;
+        moveX = Math.cos(enemy.wanderAngle);
+        moveY = Math.sin(enemy.wanderAngle);
+      }
+    }
+
+    enemy.x += moveX * enemy.speed;
+    enemy.y += moveY * enemy.speed;
+
+    enemy.angle = Math.atan2(moveY, moveX);
+
+    enemy.x = Math.max(enemy.radius, Math.min(canvas.width - enemy.radius, enemy.x));
+    enemy.y = Math.max(enemy.radius, Math.min(canvas.height - enemy.radius, enemy.y));
+
+    if (Date.now() - enemy.lastShot > 1000 && distance < 300) {
+      const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+      const speed = 3;
+
+      if (enemy.type === 'normal' || enemy.type === 'zombie') {
+        enemyBullets.push({
+          x: enemy.x,
+          y: enemy.y,
+          dx: Math.cos(angle) * speed,
+          dy: Math.sin(angle) * speed,
+          radius: 3,
+          color: enemy.type === 'zombie' ? '#00ff00' : '#ff8800'
+        });
+      } else if (enemy.type === 'squad') {
+        enemy.members.forEach(member => {
+          for (let i = 0; i < member.shots; i++) {
+            const spreadAngle = angle + (Math.random() - 0.5) * 0.5;
+            enemyBullets.push({
+              x: enemy.x,
+              y: enemy.y,
+              dx: Math.cos(spreadAngle) * speed,
+              dy: Math.sin(spreadAngle) * speed,
+              radius: 3,
+              color: '#ff00ff'
+            });
+          }
+        });
+      }
+
+      enemy.lastShot = Date.now();
+    }
+
+    if (enemy.type === 'fast' && distance < enemy.radius + player.radius) {
+      player.health -= 2 * damageReduction;
+      updateHealthBar();
+      if (player.health <= 0) {
+        gameOver(false);
+      }
+    }
+  });
+}
+
 function drawBullets() {
   bullets.forEach(bullet => {
     ctx.beginPath();
@@ -511,78 +681,6 @@ function movePlayer() {
       player.isStuck = false;
     }
   }
-}
-
-function moveEnemies() {
-  enemies.forEach(enemy => {
-    let dx = player.x - enemy.x;
-    let dy = player.y - enemy.y;
-    let distance = Math.sqrt(dx * dx + dy * dy);
-
-    let moveX, moveY;
-
-    if (enemy.type === 'fast') {
-      moveX = dx / distance;
-      moveY = dy / distance;
-    } else {
-      if (distance < 200) {
-        moveX = -dx / distance;
-        moveY = -dy / distance;
-      } else {
-        enemy.wanderAngle += (Math.random() - 0.5) * 0.5;
-        moveX = Math.cos(enemy.wanderAngle);
-        moveY = Math.sin(enemy.wanderAngle);
-      }
-    }
-
-    enemy.x += moveX * enemy.speed;
-    enemy.y += moveY * enemy.speed;
-
-    enemy.angle = Math.atan2(moveY, moveX);
-
-    enemy.x = Math.max(enemy.radius, Math.min(canvas.width - enemy.radius, enemy.x));
-    enemy.y = Math.max(enemy.radius, Math.min(canvas.height - enemy.radius, enemy.y));
-
-    if (Date.now() - enemy.lastShot > 1000) {
-      const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
-      const speed = 3;
-
-      if (enemy.type === 'normal' || enemy.type === 'zombie') {
-        enemyBullets.push({
-          x: enemy.x,
-          y: enemy.y,
-          dx: Math.cos(angle) * speed,
-          dy: Math.sin(angle) * speed,
-          radius: 3,
-          color: enemy.type === 'zombie' ? '#00ff00' : '#ff8800'
-        });
-      } else if (enemy.type === 'squad') {
-        enemy.members.forEach(member => {
-          for (let i = 0; i < member.shots; i++) {
-            const spreadAngle = angle + (Math.random() - 0.5) * 0.5;
-            enemyBullets.push({
-              x: enemy.x,
-              y: enemy.y,
-              dx: Math.cos(spreadAngle) * speed,
-              dy: Math.sin(spreadAngle) * speed,
-              radius: 3,
-              color: '#ff00ff'
-            });
-          }
-        });
-      }
-
-      enemy.lastShot = Date.now();
-    }
-
-    if (enemy.type === 'fast' && distance < enemy.radius + player.radius) {
-      player.health -= 2 * damageReduction;
-      updateHealthBar();
-      if (player.health <= 0) {
-        gameOver(false);
-      }
-    }
-  });
 }
 
 function moveBullets() {
@@ -684,8 +782,9 @@ function gameOver(won) {
     if (inEvent) {
       eventLosses++;
       if (eventLosses === 3) {
-        alert('Você foi eliminado permanentemente do evento!');
+        alert('Você foi eliminado do evento!');
         eventEliminated = true;
+        resetEventStatus();
       }
     }
   }
@@ -701,12 +800,17 @@ function gameOver(won) {
     updateEventScreen();
   }
 
+  shields = 0;
+  doubleProjectiles = false;
+  damageReduction = 1;
+  
   saveGameState();
 }
 
 function resetEventStatus() {
   eventWins = 0;
   eventLosses = 0;
+  eventEliminated = false;
   saveGameState();
 }
 
@@ -755,6 +859,17 @@ function startGame(isEvent = false) {
   canvas.style.display = 'block';
   document.getElementById('healthBar').style.display = 'block';
   resetGame();
+
+  shields = activePowerUps.shields;
+  doubleProjectiles = activePowerUps.doubleProjectiles;
+  damageReduction = activePowerUps.damageReduction;
+
+  activePowerUps = {
+    shields: 0,
+    doubleProjectiles: false,
+    damageReduction: 1
+  };
+
   gameInProgress = true;
   gameStartTime = Date.now();
   startSpawning();
@@ -822,7 +937,7 @@ function buyItem(item) {
     money -= item.cost;
     item.effect();
     updateMoneyCount();
-    alert(`Você comprou ${item.name}!`);
+    alert(`Você comprou ${item.name}! Será ativo na próxima partida.`);
   } else {
     alert('Moedas insuficientes!');
   }
@@ -830,7 +945,7 @@ function buyItem(item) {
 
 function showEventScreen() {
   if (eventEliminated) {
-    alert('Você foi eliminado permanentemente deste evento e não pode mais participar.');
+    alert('Você já foi eliminado deste evento.');
     return;
   }
   lobby.style.display = 'none';
@@ -870,7 +985,7 @@ document.getElementById('returnFromEvent').addEventListener('click', () => {
 
 document.getElementById('startEvent').addEventListener('click', () => {
   if (eventEliminated) {
-    alert('Você foi eliminado permanentemente deste evento e não pode mais participar.');
+    alert('Você já foi eliminado deste evento.');
     return;
   }
   document.getElementById('eventScreen').style.display = 'none';
@@ -980,6 +1095,16 @@ function loadGameState() {
 }
 
 window.addEventListener('load', () => {
+  const loadingScreen = document.getElementById('loadingScreen');
+  loadingScreen.style.opacity = '1';
+  
+  setTimeout(() => {
+    loadingScreen.style.opacity = '0';
+    setTimeout(() => {
+      loadingScreen.style.display = 'none';
+    }, 500);
+  }, 2000);
+  
   loadGameState();
   updateMoneyCount();
 });
