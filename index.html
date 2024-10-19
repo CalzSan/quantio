@@ -1,4 +1,4 @@
-<html><head><base href="https://enhanced-survival-shooter-v3.example.com/">
+<!DOCTYPE html><html><head><base href="https://enhanced-survival-shooter-v3.example.com/">
 <meta charset="UTF-8">
 <title>Quantio by Calzsan: Jogo de Sobrevivência</title>
 <style>
@@ -54,7 +54,7 @@
   .menu-item:hover {
     background-color: #666;
   }
-  #trophyCount, #leagueInfo {
+  #trophyCount, #leagueInfo, #moneyCount {
     font-size: 20px;
     margin-bottom: 20px;
   }
@@ -115,12 +115,54 @@
     font-size: 18px;
     margin: 10px 0;
   }
+  #shopScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  #shopItems {
+    margin: 20px 0;
+  }
+  .shop-item {
+    font-size: 20px;
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: #444;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .shop-item:hover {
+    background-color: #666;
+  }
+  #eventScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
 </style>
 </head>
 <body>
 <div id="lobby">
   <div id="trophyCount">Troféus: 0</div>
   <div id="leagueInfo">Liga: Bronze (Nível 1)</div>
+  <div id="moneyCount">Moedas: 0</div>
   <div class="menu-item" id="startGame">Iniciar Jogo</div>
   <div class="menu-item" id="showEvents">Eventos</div>
   <div class="menu-item" id="showShop">Loja</div>
@@ -130,6 +172,19 @@
   <h2>Ligas e Troféus</h2>
   <ul id="leaguesList"></ul>
   <div class="menu-item" id="returnFromLeagues">Voltar ao Lobby</div>
+</div>
+<div id="shopScreen" style="display: none;">
+  <h2>Loja</h2>
+  <div id="shopItems"></div>
+  <div class="menu-item" id="returnFromShop">Voltar ao Lobby</div>
+</div>
+<div id="eventScreen" style="display: none;">
+  <h2>Evento Especial</h2>
+  <p>Sobreviva por 60 segundos em cada partida! Complete 9 vitórias antes de 3 derrotas para ganhar o torneio. Prêmio: 1500 moedas e um distintivo exclusivo de campeão do evento!</p>
+  <p>Vitórias: <span id="eventWins">0</span>/9</p>
+  <p>Derrotas: <span id="eventLosses">0</span>/3</p>
+  <div class="menu-item" id="startEvent">Iniciar Evento</div>
+  <div class="menu-item" id="returnFromEvent">Voltar ao Lobby</div>
 </div>
 <canvas id="gameCanvas"></canvas>
 <div id="healthBar"><div id="healthFill"></div></div>
@@ -150,14 +205,30 @@ const trophyChangeElement = document.getElementById('trophyChange');
 const returnToLobbyButton = document.getElementById('returnToLobby');
 const trophyCountElement = document.getElementById('trophyCount');
 const leagueInfoElement = document.getElementById('leagueInfo');
+const moneyCountElement = document.getElementById('moneyCount');
 const timerDisplay = document.getElementById('timerDisplay');
 
 let trophyCount = 0;
+let money = 0;
 let gameStartTime;
 let gameInProgress = false;
 let gameTimer;
 let gameTimerInterval;
 let playerLevel = 1;
+
+let shields = 0;
+let doubleProjectiles = false;
+let damageReduction = 1;
+
+const shopItems = [
+  { name: 'Escudo', cost: 100, effect: () => shields++ },
+  { name: 'Tiros 2x', cost: 200, effect: () => doubleProjectiles = true },
+  { name: 'Redução de Dano 2x', cost: 300, effect: () => damageReduction = 0.5 }
+];
+
+let eventWins = 0;
+let eventLosses = 0;
+let inEvent = false;
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -504,7 +575,7 @@ function moveEnemies() {
     }
 
     if (enemy.type === 'fast' && distance < enemy.radius + player.radius) {
-      player.health -= 2;
+      player.health -= 2 * damageReduction;
       updateHealthBar();
       if (player.health <= 0) {
         gameOver(false);
@@ -556,7 +627,7 @@ function checkCollisions() {
         player.isStuck = true;
         player.stuckTime = 5 * 60;
       } else {
-        player.health -= 10;
+        player.health -= 10 * damageReduction;
         updateHealthBar();
         if (player.health <= 0) {
           gameOver(false);
@@ -570,6 +641,10 @@ function updateHealthBar() {
   healthFill.style.width = `${player.health}%`;
 }
 
+function updateMoneyCount() {
+  moneyCountElement.textContent = `Moedas: ${money}`;
+}
+
 function gameOver(won) {
   clearInterval(gameTimerInterval);
   saveGameState();
@@ -578,24 +653,56 @@ function gameOver(won) {
   timerDisplay.style.display = 'none';
   const gameTime = (Date.now() - gameStartTime) / 1000;
   
-  let trophyChange;
+  let trophyChange = 0;
   if (won) {
-    trophyChange = Math.floor(Math.random() * 6) + 28;
+    if (!inEvent) {
+      trophyChange = Math.floor(Math.random() * 6) + 28;
+      trophyCount += trophyChange;
+    }
+    const moneyEarned = Math.floor(player.health);
+    money += moneyEarned;
     gameOverMessage.textContent = `Vitória! Você sobreviveu por ${gameTime.toFixed(1)} segundos!`;
+    trophyChangeElement.textContent = inEvent ? `Moedas +${moneyEarned}` : `Troféus +${trophyChange} | Moedas +${moneyEarned}`;
+    
+    if (inEvent) {
+      eventWins++;
+      if (eventWins === 9) {
+        money += 1500;
+        alert('Parabéns! Você completou o evento e ganhou 1500 moedas!');
+        eventWins = 0;
+        eventLosses = 0;
+      }
+    }
   } else {
-    trophyChange = -(Math.floor(Math.random() * 4) + 24);
+    if (!inEvent) {
+      trophyChange = -(Math.floor(Math.random() * 4) + 24);
+      trophyCount = Math.max(0, trophyCount + trophyChange);
+    }
     gameOverMessage.textContent = `Derrota! Você sobreviveu por ${gameTime.toFixed(1)} segundos.`;
+    trophyChangeElement.textContent = inEvent ? '' : `Troféus ${trophyChange}`;
+    
+    if (inEvent) {
+      eventLosses++;
+      if (eventLosses === 3) {
+        alert('Você foi eliminado do evento!');
+        eventWins = 0;
+        eventLosses = 0;
+      }
+    }
   }
 
-  trophyCount += trophyChange;
-  trophyCount = Math.max(0, trophyCount);
-  trophyChangeElement.textContent = `Troféus ${trophyChange > 0 ? '+' : ''}${trophyChange}`;
   updateTrophyCount();
   updateLeague();
-
+  updateMoneyCount();
   canvas.style.display = 'none';
   document.getElementById('healthBar').style.display = 'none';
   gameOverScreen.style.display = 'flex';
+  
+  if (inEvent) {
+    updateEventScreen();
+  }
+
+  saveGameState();
 }
 
 function resetGame() {
@@ -632,11 +739,21 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-function startGame() {
+function startGame(isEvent = false) {
+  inEvent = isEvent;
   timerDisplay.style.display = 'block';
   gameTimer = 60;
   updateTimer();
   gameTimerInterval = setInterval(updateTimer, 1000);
+  
+  lobby.style.display = 'none';
+  canvas.style.display = 'block';
+  document.getElementById('healthBar').style.display = 'block';
+  resetGame();
+  gameInProgress = true;
+  gameStartTime = Date.now();
+  startSpawning();
+  gameLoop();
 }
 
 function updateTimer() {
@@ -677,11 +794,74 @@ function showLeaguesScreen() {
   leaguesScreen.style.display = 'flex';
 }
 
+function showShopScreen() {
+  lobby.style.display = 'none';
+  document.getElementById('shopScreen').style.display = 'flex';
+  updateShopItems();
+}
+
+function updateShopItems() {
+  const shopItemsContainer = document.getElementById('shopItems');
+  shopItemsContainer.innerHTML = '';
+  shopItems.forEach(item => {
+    const itemElement = document.createElement('div');
+    itemElement.className = 'shop-item';
+    itemElement.textContent = `${item.name} - ${item.cost} moedas`;
+    itemElement.addEventListener('click', () => buyItem(item));
+    shopItemsContainer.appendChild(itemElement);
+  });
+}
+
+function buyItem(item) {
+  if (money >= item.cost) {
+    money -= item.cost;
+    item.effect();
+    updateMoneyCount();
+    alert(`Você comprou ${item.name}!`);
+  } else {
+    alert('Moedas insuficientes!');
+  }
+}
+
+function showEventScreen() {
+  lobby.style.display = 'none';
+  document.getElementById('eventScreen').style.display = 'flex';
+  updateEventScreen();
+}
+
+function updateEventScreen() {
+  document.getElementById('eventWins').textContent = eventWins;
+  document.getElementById('eventLosses').textContent = eventLosses;
+}
+
 showLeaguesButton.addEventListener('click', showLeaguesScreen);
 
 returnFromLeaguesButton.addEventListener('click', () => {
   leaguesScreen.style.display = 'none';
   lobby.style.display = 'flex';
+});
+
+returnToLobbyButton.addEventListener('click', () => {
+  gameOverScreen.style.display = 'none';
+  lobby.style.display = 'flex';
+  updateMoneyCount();
+});
+
+document.getElementById('showShop').addEventListener('click', showShopScreen);
+document.getElementById('returnFromShop').addEventListener('click', () => {
+  document.getElementById('shopScreen').style.display = 'none';
+  lobby.style.display = 'flex';
+});
+
+document.getElementById('showEvents').addEventListener('click', showEventScreen);
+document.getElementById('returnFromEvent').addEventListener('click', () => {
+  document.getElementById('eventScreen').style.display = 'none';
+  lobby.style.display = 'flex';
+});
+
+document.getElementById('startEvent').addEventListener('click', () => {
+  document.getElementById('eventScreen').style.display = 'none';
+  startGame(true);
 });
 
 document.addEventListener('keydown', (e) => {
@@ -711,7 +891,7 @@ canvas.addEventListener('mousemove', (e) => {
 
 canvas.addEventListener('mousedown', (e) => {
   const angle = Math.atan2(e.clientY - player.y, e.clientX - player.x);
-  const speed = 10;
+  const speed = doubleProjectiles ? 10 : 5;
   bullets.push({
     x: player.x,
     y: player.y,
@@ -719,6 +899,22 @@ canvas.addEventListener('mousedown', (e) => {
     dy: Math.sin(angle) * speed,
     radius: 5
   });
+  if (doubleProjectiles) {
+    bullets.push({
+      x: player.x,
+      y: player.y,
+      dx: Math.cos(angle + 0.1) * speed,
+      dy: Math.sin(angle + 0.1) * speed,
+      radius: 5
+    });
+    bullets.push({
+      x: player.x,
+      y: player.y,
+      dx: Math.cos(angle - 0.1) * speed,
+      dy: Math.sin(angle - 0.1) * speed,
+      radius: 5
+    });
+  }
 });
 
 function updateTrophyCount() {
@@ -744,7 +940,10 @@ function saveGameState() {
   const gameState = {
     trophyCount: trophyCount,
     league: leagueInfoElement.textContent.split(': ')[1],
-    playerLevel: playerLevel
+    playerLevel: playerLevel,
+    money: money,
+    eventWins: eventWins,
+    eventLosses: eventLosses
   };
   localStorage.setItem('quantioGameState', JSON.stringify(gameState));
 }
@@ -755,12 +954,20 @@ function loadGameState() {
     const gameState = JSON.parse(savedState);
     trophyCount = gameState.trophyCount;
     playerLevel = gameState.playerLevel || 1;
+    money = gameState.money || 0;
+    eventWins = gameState.eventWins || 0;
+    eventLosses = gameState.eventLosses || 0;
     updateTrophyCount();
     updateLeague();
+    updateMoneyCount();
+    updateEventScreen();
   }
 }
 
-window.addEventListener('load', loadGameState);
+window.addEventListener('load', () => {
+  loadGameState();
+  updateMoneyCount();
+});
 
 document.getElementById('startGame').addEventListener('click', () => {
   lobby.style.display = 'none';
@@ -774,21 +981,8 @@ document.getElementById('startGame').addEventListener('click', () => {
   startGame();
 });
 
-document.getElementById('showEvents').addEventListener('click', () => {
-  alert('Eventos em breve!');
-});
-
-document.getElementById('showShop').addEventListener('click', () => {
-  alert('Loja em breve!');
-});
-
-returnToLobbyButton.addEventListener('click', () => {
-  gameOverScreen.style.display = 'none';
-  lobby.style.display = 'flex';
-});
-
 updateTrophyCount();
 updateLeague();
 </script>
-</body>
-</html>
+
+</body></html>
