@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><base href="https://enhanced-survival-shooter-v3.example.com/">
+<html><head><base href="https://enhanced-survival-shooter-v3.example.com/">
 <meta charset="UTF-8">
 <title>Quantio by Calzsan: Jogo de Sobrevivência</title>
 <style>
@@ -220,15 +220,16 @@ let shields = 0;
 let doubleProjectiles = false;
 let damageReduction = 1;
 
+let eventWins = 0;
+let eventLosses = 0;
+let eventEliminated = false;
+let inEvent = false;
+
 const shopItems = [
   { name: 'Escudo', cost: 100, effect: () => shields++ },
   { name: 'Tiros 2x', cost: 200, effect: () => doubleProjectiles = true },
   { name: 'Redução de Dano 2x', cost: 300, effect: () => damageReduction = 0.5 }
 ];
-
-let eventWins = 0;
-let eventLosses = 0;
-let inEvent = false;
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -338,7 +339,7 @@ function drawEnemies() {
     ctx.save();
     ctx.translate(enemy.x, enemy.y);
     ctx.rotate(enemy.angle);
-
+    
     switch(enemy.type) {
       case 'normal':
         drawNormalEnemy(enemy);
@@ -669,8 +670,7 @@ function gameOver(won) {
       if (eventWins === 9) {
         money += 1500;
         alert('Parabéns! Você completou o evento e ganhou 1500 moedas!');
-        eventWins = 0;
-        eventLosses = 0;
+        resetEventStatus();
       }
     }
   } else {
@@ -684,9 +684,8 @@ function gameOver(won) {
     if (inEvent) {
       eventLosses++;
       if (eventLosses === 3) {
-        alert('Você foi eliminado do evento!');
-        eventWins = 0;
-        eventLosses = 0;
+        alert('Você foi eliminado permanentemente do evento!');
+        eventEliminated = true;
       }
     }
   }
@@ -702,6 +701,12 @@ function gameOver(won) {
     updateEventScreen();
   }
 
+  saveGameState();
+}
+
+function resetEventStatus() {
+  eventWins = 0;
+  eventLosses = 0;
   saveGameState();
 }
 
@@ -824,6 +829,10 @@ function buyItem(item) {
 }
 
 function showEventScreen() {
+  if (eventEliminated) {
+    alert('Você foi eliminado permanentemente deste evento e não pode mais participar.');
+    return;
+  }
   lobby.style.display = 'none';
   document.getElementById('eventScreen').style.display = 'flex';
   updateEventScreen();
@@ -860,6 +869,10 @@ document.getElementById('returnFromEvent').addEventListener('click', () => {
 });
 
 document.getElementById('startEvent').addEventListener('click', () => {
+  if (eventEliminated) {
+    alert('Você foi eliminado permanentemente deste evento e não pode mais participar.');
+    return;
+  }
   document.getElementById('eventScreen').style.display = 'none';
   startGame(true);
 });
@@ -943,7 +956,8 @@ function saveGameState() {
     playerLevel: playerLevel,
     money: money,
     eventWins: eventWins,
-    eventLosses: eventLosses
+    eventLosses: eventLosses,
+    eventEliminated: eventEliminated
   };
   localStorage.setItem('quantioGameState', JSON.stringify(gameState));
 }
@@ -957,6 +971,7 @@ function loadGameState() {
     money = gameState.money || 0;
     eventWins = gameState.eventWins || 0;
     eventLosses = gameState.eventLosses || 0;
+    eventEliminated = gameState.eventEliminated || false;
     updateTrophyCount();
     updateLeague();
     updateMoneyCount();
