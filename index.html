@@ -250,7 +250,7 @@
     border-radius: 10px;
     padding: 15px;
     text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
   }
   .shop-item:hover {
     transform: translateY(-5px);
@@ -367,8 +367,14 @@
 </div>
 <div id="exportImportScreen" style="display: none;">
   <h2>Exportar/Importar Dados</h2>
-  <button id="exportMoneyButton">Exportar Moedas</button>
-  <button id="exportAccountButton">Exportar Conta Completa</button>
+  <div>
+    <input type="text" id="moneyExportCode" placeholder="Código para exportar moedas">
+    <button id="exportMoneyButton">Exportar Moedas</button>
+  </div>
+  <div>
+    <input type="text" id="accountExportCode" placeholder="Código para exportar conta">
+    <button id="exportAccountButton">Exportar Conta Completa</button>
+  </div>
   <textarea id="exportImportCode" rows="5" cols="50" placeholder="Cole o código aqui para importar"></textarea>
   <button id="importButton">Importar Dados</button>
   <div class="menu-item" id="returnFromExportImport">Voltar ao Lobby</div>
@@ -402,8 +408,14 @@
 </div>
 <div id="exportImportScreen" style="display: none;">
   <h2>Exportar/Importar Dados</h2>
-  <button id="exportMoneyButton">Exportar Moedas</button>
-  <button id="exportAccountButton">Exportar Conta Completa</button>
+  <div>
+    <input type="text" id="moneyExportCode" placeholder="Código para exportar moedas">
+    <button id="exportMoneyButton">Exportar Moedas</button>
+  </div>
+  <div>
+    <input type="text" id="accountExportCode" placeholder="Código para exportar conta">
+    <button id="exportAccountButton">Exportar Conta Completa</button>
+  </div>
   <textarea id="exportImportCode" rows="5" cols="50" placeholder="Cole o código aqui para importar"></textarea>
   <button id="importButton">Importar Dados</button>
   <div class="menu-item" id="returnFromExportImport">Voltar ao Lobby</div>
@@ -493,12 +505,12 @@ let inEvent = false;
 const shopItems = [
   { name: 'Tiros 2x', cost: 200, effect: () => activePowerUps.doubleProjectiles = true },
   { name: 'Redução de Dano 2x', cost: 300, effect: () => activePowerUps.damageReduction = 0.5 },
-  { name: 'Repulsão', cost: 300, effect: () => activePowerUps.repulsion = true },
-  { name: 'Velocidade +50%', cost: 250, effect: () => activePowerUps.speedBoost = true },
-  { name: 'Tiro Explosivo', cost: 400, effect: () => activePowerUps.explosiveShot = true },
-  { name: 'Escudo Temporário', cost: 350, effect: () => activePowerUps.temporaryShield = true },
-  { name: 'Regeneração', cost: 300, effect: () => activePowerUps.regeneration = true },
-  { name: 'Tiro Congelante', cost: 350, effect: () => activePowerUps.freezeShot = true }
+  { name: 'Repulsão', cost: 300, maintenance: true },
+  { name: 'Velocidade +50%', cost: 250, maintenance: true },
+  { name: 'Tiro Explosivo', cost: 400, maintenance: true },
+  { name: 'Escudo Temporário', cost: 350, maintenance: true },
+  { name: 'Regeneração', cost: 300, maintenance: true },
+  { name: 'Tiro Congelante', cost: 350, maintenance: true }
 ];
 
 canvas.width = window.innerWidth;
@@ -1140,16 +1152,29 @@ function updateShopItems() {
   shopItems.forEach(item => {
     const itemElement = document.createElement('div');
     itemElement.className = 'shop-item';
-    itemElement.innerHTML = `
-      <div class="shop-item-name">${item.name}</div>
-      <div class="shop-item-cost">${item.cost} moedas</div>
-    `;
-    itemElement.addEventListener('click', () => buyItem(item));
+    if (item.maintenance) {
+      itemElement.innerHTML = `
+        <div class="shop-item-name">${item.name}</div>
+        <div class="shop-item-cost">Em manutenção</div>
+      `;
+      itemElement.style.opacity = '0.5';
+      itemElement.style.cursor = 'not-allowed';
+    } else {
+      itemElement.innerHTML = `
+        <div class="shop-item-name">${item.name}</div>
+        <div class="shop-item-cost">${item.cost} moedas</div>
+      `;
+      itemElement.addEventListener('click', () => buyItem(item));
+    }
     shopItemsContainer.appendChild(itemElement);
   });
 }
 
 function buyItem(item) {
+  if (item.maintenance) {
+    alert('Este item está em manutenção e não pode ser comprado no momento.');
+    return;
+  }
   if (money >= item.cost) {
     money -= item.cost;
     item.effect();
@@ -1190,29 +1215,40 @@ function exportMoney() {
     return;
   }
 
+  const customCode = document.getElementById('moneyExportCode').value.trim();
+  if (!customCode) {
+    alert("Por favor, insira um código personalizado para exportar as moedas.");
+    return;
+  }
+
   const moneyData = {
     type: 'money',
     money: parsedAmount,
     timestamp: Date.now()
   };
-  const exportCode = btoa(JSON.stringify(moneyData));
+  const exportCode = customCode + '|' + btoa(JSON.stringify(moneyData));
   
-  if (exportCode !== lastExportedCode) {
+  if (!importedCodes.has(exportCode)) {
     document.getElementById('exportImportCode').value = exportCode;
     
     money -= parsedAmount;
     updateMoneyCount();
     saveGameState();
     
-    lastExportedCode = exportCode;
     importedCodes.add(exportCode);
     alert(`${parsedAmount} moedas exportadas! Copie o código para usar em outro dispositivo.`);
   } else {
-    alert("Este código já foi exportado. Por favor, altere o valor da doação para gerar um novo código.");
+    alert("Este código já foi usado. Por favor, escolha um código diferente.");
   }
 }
 
 function exportAccount() {
+  const customCode = document.getElementById('accountExportCode').value.trim();
+  if (!customCode) {
+    alert("Por favor, insira um código personalizado para exportar a conta.");
+    return;
+  }
+
   const accountData = {
     type: 'account',
     trophyCount: trophyCount,
@@ -1221,29 +1257,39 @@ function exportAccount() {
     money: money,
     activePowerUps: activePowerUps
   };
-  const exportCode = btoa(JSON.stringify(accountData));
-  document.getElementById('exportImportCode').value = exportCode;
-  alert('Conta completa exportada! Copie o código para usar em outro dispositivo.');
+  const exportCode = customCode + '|' + btoa(JSON.stringify(accountData));
+  
+  if (!importedCodes.has(exportCode)) {
+    document.getElementById('exportImportCode').value = exportCode;
+    importedCodes.add(exportCode);
+    alert('Conta completa exportada! Copie o código para usar em outro dispositivo.');
+  } else {
+    alert("Este código já foi usado. Por favor, escolha um código diferente.");
+  }
 }
 
 function importGameData() {
   const importCode = document.getElementById('exportImportCode').value.trim();
+  const [customCode, encodedData] = importCode.split('|');
+  
+  if (!customCode || !encodedData) {
+    alert('Código inválido. Por favor, verifique e tente novamente.');
+    return;
+  }
+
   try {
-    const gameData = JSON.parse(atob(importCode));
+    const gameData = JSON.parse(atob(encodedData));
+    if (importedCodes.has(importCode)) {
+      alert('Este código já foi usado. Por favor, use um novo código.');
+      return;
+    }
+
     if (gameData.type === 'money') {
-      if (importedCodes.has(importCode)) {
-        alert('Este código já foi usado. Por favor, use um novo código.');
-        return;
-      }
       money += gameData.money;
       updateMoneyCount();
       importedCodes.add(importCode);
       alert(`${gameData.money} moedas importadas com sucesso!`);
     } else if (gameData.type === 'account') {
-      if (importedCodes.has(importCode)) {
-        alert('Este código já foi usado. Por favor, use um novo código.');
-        return;
-      }
       trophyCount = gameData.trophyCount;
       playerLevel = gameData.playerLevel;
       money = gameData.money;
