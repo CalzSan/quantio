@@ -356,6 +356,22 @@
     width: 100%;
     max-width: 600px;
   }
+  .contact-info {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    text-align: center;
+  }
+  .contact-info p {
+    margin: 5px 0;
+  }
+  #shopItems h3 {
+    color: #fff;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
 </style>
 </head>
 <body>
@@ -468,6 +484,20 @@ let chests = [
   { id: 3, locked: true, respawnTime: 0 }
 ];
 
+// Add this new array for promotions
+const promotions = [
+  { coins: 500, price: '2,50' },
+  { coins: 1000, price: '3,50' },
+  { coins: 2000, price: '4,50' },
+  { coins: 5000, price: '9,00' },
+  { coins: 15000, price: '22,00' }
+];
+
+const shopItems = [
+  { name: 'Tiros 2x', cost: 200, effect: () => activePowerUps.doubleProjectiles = true },
+  { name: 'Redução de Dano 2x', cost: 300, effect: () => activePowerUps.damageReduction = 0.5 }
+];
+
 function showNameInputScreen() {
   document.getElementById('nameInputScreen').style.display = 'flex';
   document.getElementById('lobby').style.display = 'none';
@@ -520,33 +550,13 @@ let playerLevel = 1;
 
 let activePowerUps = {
   doubleProjectiles: false,
-  damageReduction: 1,
-  repulsion: false,
-  speedBoost: false,
-  explosiveShot: false,
-  temporaryShield: false,
-  regeneration: false,
-  freezeShot: false
+  damageReduction: 1
 };
-
-let doubleProjectiles = false;
-let damageReduction = 1;
 
 let eventWins = 0;
 let eventLosses = 0;
 let eventEliminated = false;
 let inEvent = false;
-
-const shopItems = [
-  { name: 'Tiros 2x', cost: 200, effect: () => activePowerUps.doubleProjectiles = true },
-  { name: 'Redução de Dano 2x', cost: 300, effect: () => activePowerUps.damageReduction = 0.5 },
-  { name: 'Repulsão', cost: 300, maintenance: true },
-  { name: 'Velocidade +50%', cost: 250, maintenance: true },
-  { name: 'Tiro Explosivo', cost: 400, maintenance: true },
-  { name: 'Escudo Temporário', cost: 350, maintenance: true },
-  { name: 'Regeneração', cost: 300, maintenance: true },
-  { name: 'Tiro Congelante', cost: 350, maintenance: true }
-];
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -1125,13 +1135,7 @@ function startGame(isEvent = false) {
 
   activePowerUps = {
     doubleProjectiles: false,
-    damageReduction: 1,
-    repulsion: false,
-    speedBoost: false,
-    explosiveShot: false,
-    temporaryShield: false,
-    regeneration: false,
-    freezeShot: false
+    damageReduction: 1
   };
 
   gameInProgress = true;
@@ -1190,32 +1194,47 @@ function updateShopItems() {
   shopItemsContainer.innerHTML = '';
   moneyDisplay.textContent = `Suas moedas: ${money}`;
   
+  // Add promotions section
+  const promotionsSection = document.createElement('div');
+  promotionsSection.innerHTML = '<h3>Promoções</h3>';
+  shopItemsContainer.appendChild(promotionsSection);
+
+  promotions.forEach(promo => {
+    const promoElement = document.createElement('div');
+    promoElement.className = 'shop-item';
+    promoElement.innerHTML = `
+      <div class="shop-item-name">${promo.coins} MOEDAS</div>
+      <div class="shop-item-cost">R$ ${promo.price}</div>
+    `;
+    promotionsSection.appendChild(promoElement);
+  });
+
+  const contactInfo = document.createElement('div');
+  contactInfo.className = 'contact-info';
+  contactInfo.innerHTML = `
+    <p>ADQUIRIR ENTRE EM CONTATO</p>
+    <p>CALZSAN (11 953513188)</p>
+  `;
+  promotionsSection.appendChild(contactInfo);
+
+  // Existing shop items
+  const itemsSection = document.createElement('div');
+  itemsSection.innerHTML = '<h3>Itens da Loja</h3>';
+  shopItemsContainer.appendChild(itemsSection);
+
   shopItems.forEach(item => {
     const itemElement = document.createElement('div');
     itemElement.className = 'shop-item';
-    if (item.maintenance) {
-      itemElement.innerHTML = `
-        <div class="shop-item-name">${item.name}</div>
-        <div class="shop-item-cost">Em manutenção</div>
-      `;
-      itemElement.style.opacity = '0.5';
-      itemElement.style.cursor = 'not-allowed';
-    } else {
-      itemElement.innerHTML = `
-        <div class="shop-item-name">${item.name}</div>
-        <div class="shop-item-cost">${item.cost} moedas</div>
-      `;
-      itemElement.addEventListener('click', () => buyItem(item));
-    }
-    shopItemsContainer.appendChild(itemElement);
+    itemElement.innerHTML = `
+      <div class="shop-item-name">${item.name}</div>
+      <div class="shop-item-cost">${item.cost} moedas</div>
+    `;
+    itemElement.addEventListener('click', () => buyItem(item));
+    itemsSection.appendChild(itemElement);
   });
 }
 
 function buyItem(item) {
-  if (item.maintenance) {
-    alert('Este item está em manutenção e não pode ser comprado no momento.');
-    return;
-  }
   if (money >= item.cost) {
     money -= item.cost;
     totalGoldSpent += item.cost;
@@ -1322,13 +1341,7 @@ function exportAccount() {
     money = 0;
     activePowerUps = {
       doubleProjectiles: false,
-      damageReduction: 1,
-      repulsion: false,
-      speedBoost: false,
-      explosiveShot: false,
-      temporaryShield: false,
-      regeneration: false,
-      freezeShot: false
+      damageReduction: 1
     };
     playerName = '';
     
@@ -1424,15 +1437,9 @@ function loadGameState() {
     trophyCount = gameState.trophyCount;
     playerLevel = gameState.playerLevel || 1;
     money = gameState.money || 0;
-    activePowerUps = gameState.activePowerUps || {
-      doubleProjectiles: false,
-      damageReduction: 1,
-      repulsion: false,
-      speedBoost: false,
-      explosiveShot: false,
-      temporaryShield: false,
-      regeneration: false,
-      freezeShot: false
+    activePowerUps = {
+      doubleProjectiles: gameState.activePowerUps?.doubleProjectiles || false,
+      damageReduction: gameState.activePowerUps?.damageReduction || 1
     };
     importedCodes = new Set(gameState.importedCodes || []);
     maxTrophies = gameState.maxTrophies || 0;
@@ -1623,15 +1630,13 @@ canvas.addEventListener('mousemove', (e) => {
 canvas.addEventListener('mousedown', (e) => {
   const angle = Math.atan2(e.clientY - player.y, e.clientX - player.x);
   const speed = doubleProjectiles ? 10 : 5;
-  const bulletType = activePowerUps.explosiveShot ? 'explosive' : (activePowerUps.freezeShot ? 'freeze' : 'normal');
   
   bullets.push({
     x: player.x,
     y: player.y,
     dx: Math.cos(angle) * speed,
     dy: Math.sin(angle) * speed,
-    radius: 5,
-    type: bulletType
+    radius: 5
   });
   
   if (doubleProjectiles) {
@@ -1640,16 +1645,14 @@ canvas.addEventListener('mousedown', (e) => {
       y: player.y,
       dx: Math.cos(angle + 0.1) * speed,
       dy: Math.sin(angle + 0.1) * speed,
-      radius: 5,
-      type: bulletType
+      radius: 5
     });
     bullets.push({
       x: player.x,
       y: player.y,
       dx: Math.cos(angle - 0.1) * speed,
       dy: Math.sin(angle - 0.1) * speed,
-      radius: 5,
-      type: bulletType
+      radius: 5
     });
   }
 });
