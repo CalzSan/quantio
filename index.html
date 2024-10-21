@@ -307,6 +307,19 @@
     border-radius: 5px;
     cursor: pointer;
   }
+  #statisticsScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
 </style>
 </head>
 <body>
@@ -343,6 +356,7 @@
     <button class="menu-item" id="showEvents" disabled="" style="opacity: 0.5; cursor: not-allowed;">Em manutenção por Calzsan</button>
     <button class="menu-item" id="showShop">Loja</button>
     <button class="menu-item" id="showLeagues">Ligas</button>
+    <button class="menu-item" id="showStatistics">Estatísticas</button>
     <button class="menu-item" id="showExportImport">Exportar/Importar</button>
   </div>
 </div>
@@ -379,46 +393,10 @@
   <button id="importButton">Importar Dados</button>
   <div class="menu-item" id="returnFromExportImport">Voltar ao Lobby</div>
 </div>
-<canvas id="gameCanvas"></canvas>
-<div id="healthBar"><div id="healthFill"></div></div>
-<div id="timerDisplay"></div>
-<div id="gameOverScreen">
-  <div id="gameOverMessage"></div>
-  <div id="trophyChange"></div>
-  <div id="returnToLobby">Voltar ao Lobby</div>
-</div>
-<div id="leaguesScreen" style="display: none;">
-  <h2>Ligas e Troféus</h2>
-  <ul id="leaguesList"></ul>
-  <div class="menu-item" id="returnFromLeagues">Voltar ao Lobby</div>
-</div>
-<div id="shopScreen" style="display: none;">
-  <h2>Loja</h2>
-  <div id="moneyDisplay"></div>
-  <div id="shopItems" class="shop-grid"></div>
-  <div class="menu-item" id="returnFromShop">Voltar ao Lobby</div>
-</div>
-<div id="eventScreen" style="display: none;">
-  <h2>Evento Especial</h2>
-  <p>Sobreviva por 60 segundos em cada partida! Complete 9 vitórias antes de 3 derrotas para ganhar o torneio. Prêmio: 1500 moedas e um distintivo exclusivo de campeão do evento!</p>
-  <p>Vitórias: <span id="eventWins">0</span>/9</p>
-  <p>Derrotas: <span id="eventLosses">0</span>/3</p>
-  <div class="menu-item" id="startEvent">Iniciar Evento</div>
-  <div class="menu-item" id="returnFromEvent">Voltar ao Lobby</div>
-</div>
-<div id="exportImportScreen" style="display: none;">
-  <h2>Exportar/Importar Dados</h2>
-  <div>
-    <input type="text" id="moneyExportCode" placeholder="Código para exportar moedas">
-    <button id="exportMoneyButton">Exportar Moedas</button>
-  </div>
-  <div>
-    <input type="text" id="accountExportCode" placeholder="Código para exportar conta">
-    <button id="exportAccountButton">Exportar Conta Completa</button>
-  </div>
-  <textarea id="exportImportCode" rows="5" cols="50" placeholder="Cole o código aqui para importar"></textarea>
-  <button id="importButton">Importar Dados</button>
-  <div class="menu-item" id="returnFromExportImport">Voltar ao Lobby</div>
+<div id="statisticsScreen" style="display: none;">
+  <h2>Estatísticas</h2>
+  <ul id="statisticsList"></ul>
+  <div class="menu-item" id="returnFromStatistics">Voltar ao Lobby</div>
 </div>
 <canvas id="gameCanvas"></canvas>
 <div id="healthBar"><div id="healthFill"></div></div>
@@ -432,6 +410,12 @@
 let lastExportedCode = '';
 let importedCodes = new Set();
 let playerName = '';
+let maxTrophies = 0;
+let totalVictories = 0;
+let totalDefeats = 0;
+let maxGoldEarned = 0;
+let totalGoldSpent = 0;
+let totalAbilitiesUsed = 0;
 
 function showNameInputScreen() {
   document.getElementById('nameInputScreen').style.display = 'flex';
@@ -458,7 +442,7 @@ function setPlayerName() {
 function updatePlayerNameDisplay() {
   const nameDisplay = document.getElementById('playerNameDisplay');
   if (nameDisplay) {
-    nameDisplay.textContent = `Jogador: ${playerName}`;
+    nameDisplay.textContent = playerName ? `Jogador: ${playerName}` : 'Jogador: Sem nome';
   }
 }
 
@@ -970,14 +954,14 @@ function gameOver(won) {
   
   let trophyChange = 0;
   if (won) {
-    if (!inEvent) {
-      trophyChange = Math.floor(Math.random() * 6) + 28;
-      trophyCount += trophyChange;
-    }
+    totalVictories++;
     const moneyEarned = Math.floor(player.health);
+    maxGoldEarned = Math.max(maxGoldEarned, moneyEarned);
+    trophyChange = Math.floor(Math.random() * 6) + 28;
+    trophyCount += trophyChange;
     money += moneyEarned;
     gameOverMessage.textContent = `Vitória! Você sobreviveu por ${gameTime.toFixed(1)} segundos!`;
-    trophyChangeElement.textContent = inEvent ? `Moedas +${moneyEarned}` : `Troféus +${trophyChange} | Moedas +${moneyEarned}`;
+    trophyChangeElement.textContent = `Troféus +${trophyChange} | Moedas +${moneyEarned}`;
     
     if (inEvent) {
       eventWins++;
@@ -988,12 +972,11 @@ function gameOver(won) {
       }
     }
   } else {
-    if (!inEvent) {
-      trophyChange = -(Math.floor(Math.random() * 4) + 24);
-      trophyCount = Math.max(0, trophyCount + trophyChange);
-    }
+    totalDefeats++;
+    trophyChange = -(Math.floor(Math.random() * 4) + 24);
+    trophyCount = Math.max(0, trophyCount + trophyChange);
     gameOverMessage.textContent = `Derrota! Você sobreviveu por ${gameTime.toFixed(1)} segundos.`;
-    trophyChangeElement.textContent = inEvent ? '' : `Troféus ${trophyChange}`;
+    trophyChangeElement.textContent = `Troféus ${trophyChange}`;
     
     if (inEvent) {
       eventLosses++;
@@ -1005,6 +988,7 @@ function gameOver(won) {
     }
   }
 
+  maxTrophies = Math.max(maxTrophies, trophyCount);
   updateTrophyCount();
   updateLeague();
   updateMoneyCount();
@@ -1177,7 +1161,9 @@ function buyItem(item) {
   }
   if (money >= item.cost) {
     money -= item.cost;
+    totalGoldSpent += item.cost;
     item.effect();
+    totalAbilitiesUsed++;
     updateMoneyCount();
     alert(`Você comprou ${item.name}! Será ativo na próxima partida.`);
   } else {
@@ -1207,7 +1193,7 @@ function showExportImportScreen() {
 
 function exportMoney() {
   const amount = prompt("Digite a quantidade de moedas que deseja exportar:", money);
-  if (amount === null) return; // Usuário cancelou
+  if (amount === null) return; 
   
   const parsedAmount = parseInt(amount);
   if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > money) {
@@ -1255,7 +1241,14 @@ function exportAccount() {
     league: leagueInfoElement.textContent.split(': ')[1],
     playerLevel: playerLevel,
     money: money,
-    activePowerUps: activePowerUps
+    activePowerUps: activePowerUps,
+    playerName: playerName,
+    maxTrophies: maxTrophies,
+    totalVictories: totalVictories,
+    totalDefeats: totalDefeats,
+    maxGoldEarned: maxGoldEarned,
+    totalGoldSpent: totalGoldSpent,
+    totalAbilitiesUsed: totalAbilitiesUsed,
   };
   const exportCode = customCode + '|' + btoa(JSON.stringify(accountData));
   
@@ -1263,6 +1256,31 @@ function exportAccount() {
     document.getElementById('exportImportCode').value = exportCode;
     importedCodes.add(exportCode);
     alert('Conta completa exportada! Copie o código para usar em outro dispositivo.');
+    
+    localStorage.removeItem('quantioGameState');
+    localStorage.removeItem('quantioPlayerName');
+    
+    trophyCount = 0;
+    playerLevel = 1;
+    money = 0;
+    activePowerUps = {
+      doubleProjectiles: false,
+      damageReduction: 1,
+      repulsion: false,
+      speedBoost: false,
+      explosiveShot: false,
+      temporaryShield: false,
+      regeneration: false,
+      freezeShot: false
+    };
+    playerName = '';
+    
+    updateTrophyCount();
+    updateLeague();
+    updateMoneyCount();
+    updatePlayerNameDisplay();
+    
+    showNameInputScreen();
   } else {
     alert("Este código já foi usado. Por favor, escolha um código diferente.");
   }
@@ -1294,15 +1312,28 @@ function importGameData() {
       playerLevel = gameData.playerLevel;
       money = gameData.money;
       activePowerUps = gameData.activePowerUps;
+      playerName = gameData.playerName;
+      maxTrophies = gameData.maxTrophies;
+      totalVictories = gameData.totalVictories;
+      totalDefeats = gameData.totalDefeats;
+      maxGoldEarned = gameData.maxGoldEarned;
+      totalGoldSpent = gameData.totalGoldSpent;
+      totalAbilitiesUsed = gameData.totalAbilitiesUsed;
+      
       updateTrophyCount();
       updateLeague();
       updateMoneyCount();
+      updatePlayerNameDisplay();
+      
       importedCodes.add(importCode);
       alert('Conta completa importada com sucesso!');
+      
+      saveGameState();
+      
+      location.reload();
     } else {
       throw new Error('Tipo de dados inválido');
     }
-    saveGameState();
   } catch (error) {
     alert('Código inválido. Por favor, verifique e tente novamente.');
   }
@@ -1315,7 +1346,13 @@ function saveGameState() {
     playerLevel: playerLevel,
     money: money,
     activePowerUps: activePowerUps,
-    importedCodes: Array.from(importedCodes)
+    importedCodes: Array.from(importedCodes),
+    maxTrophies: maxTrophies,
+    totalVictories: totalVictories,
+    totalDefeats: totalDefeats,
+    maxGoldEarned: maxGoldEarned,
+    totalGoldSpent: totalGoldSpent,
+    totalAbilitiesUsed: totalAbilitiesUsed,
   };
   localStorage.setItem('quantioGameState', JSON.stringify(gameState));
 }
@@ -1338,6 +1375,12 @@ function loadGameState() {
       freezeShot: false
     };
     importedCodes = new Set(gameState.importedCodes || []);
+    maxTrophies = gameState.maxTrophies || 0;
+    totalVictories = gameState.totalVictories || 0;
+    totalDefeats = gameState.totalDefeats || 0;
+    maxGoldEarned = gameState.maxGoldEarned || 0;
+    totalGoldSpent = gameState.totalGoldSpent || 0;
+    totalAbilitiesUsed = gameState.totalAbilitiesUsed || 0;
     updateTrophyCount();
     updateLeague();
     updateMoneyCount();
@@ -1349,6 +1392,24 @@ function loadGameState() {
   } else {
     updatePlayerNameDisplay();
   }
+}
+
+function showStatisticsScreen() {
+  lobby.style.display = 'none';
+  document.getElementById('statisticsScreen').style.display = 'flex';
+  updateStatistics();
+}
+
+function updateStatistics() {
+  const statisticsList = document.getElementById('statisticsList');
+  statisticsList.innerHTML = `
+    <li>Máximo de troféus alcançados: ${maxTrophies}</li>
+    <li>Número de vitórias: ${totalVictories}</li>
+    <li>Número de derrotas: ${totalDefeats}</li>
+    <li>Máximo de ouro ganho em uma partida: ${maxGoldEarned}</li>
+    <li>Total de ouro gasto: ${totalGoldSpent}</li>
+    <li>Quantidade de habilidades usadas: ${totalAbilitiesUsed}</li>
+  `;
 }
 
 showLeaguesButton.addEventListener('click', showLeaguesScreen);
@@ -1377,21 +1438,18 @@ document.getElementById('returnFromEvent').addEventListener('click', () => {
   lobby.style.display = 'flex';
 });
 
-document.getElementById('startEvent').addEventListener('click', () => {
-  if (eventEliminated) {
-    alert('Você já foi eliminado deste evento.');
-    return;
-  }
-  document.getElementById('eventScreen').style.display = 'none';
-  startGame(true);
-});
-
 document.getElementById('exportMoneyButton').addEventListener('click', exportMoney);
 document.getElementById('exportAccountButton').addEventListener('click', exportAccount);
 document.getElementById('importButton').addEventListener('click', importGameData);
 document.getElementById('showExportImport').addEventListener('click', showExportImportScreen);
 document.getElementById('returnFromExportImport').addEventListener('click', () => {
   document.getElementById('exportImportScreen').style.display = 'none';
+  lobby.style.display = 'flex';
+});
+
+document.getElementById('showStatistics').addEventListener('click', showStatisticsScreen);
+document.getElementById('returnFromStatistics').addEventListener('click', () => {
+  document.getElementById('statisticsScreen').style.display = 'none';
   lobby.style.display = 'flex';
 });
 
@@ -1473,47 +1531,22 @@ function updateLeague() {
   leagueInfoElement.textContent = `Liga: ${league} (Nível ${playerLevel})`;
 }
 
-function saveGameState() {
-  const gameState = {
-    trophyCount: trophyCount,
-    league: leagueInfoElement.textContent.split(': ')[1],
-    playerLevel: playerLevel,
-    money: money,
-    activePowerUps: activePowerUps,
-    importedCodes: Array.from(importedCodes)
-  };
-  localStorage.setItem('quantioGameState', JSON.stringify(gameState));
+function showStatisticsScreen() {
+  lobby.style.display = 'none';
+  document.getElementById('statisticsScreen').style.display = 'flex';
+  updateStatistics();
 }
 
-function loadGameState() {
-  const savedState = localStorage.getItem('quantioGameState');
-  if (savedState) {
-    const gameState = JSON.parse(savedState);
-    trophyCount = gameState.trophyCount;
-    playerLevel = gameState.playerLevel || 1;
-    money = gameState.money || 0;
-    activePowerUps = gameState.activePowerUps || {
-      doubleProjectiles: false,
-      damageReduction: 1,
-      repulsion: false,
-      speedBoost: false,
-      explosiveShot: false,
-      temporaryShield: false,
-      regeneration: false,
-      freezeShot: false
-    };
-    importedCodes = new Set(gameState.importedCodes || []);
-    updateTrophyCount();
-    updateLeague();
-    updateMoneyCount();
-  }
-  
-  playerName = localStorage.getItem('quantioPlayerName');
-  if (!playerName) {
-    showNameInputScreen();
-  } else {
-    updatePlayerNameDisplay();
-  }
+function updateStatistics() {
+  const statisticsList = document.getElementById('statisticsList');
+  statisticsList.innerHTML = `
+    <li>Máximo de troféus alcançados: ${maxTrophies}</li>
+    <li>Número de vitórias: ${totalVictories}</li>
+    <li>Número de derrotas: ${totalDefeats}</li>
+    <li>Máximo de ouro ganho em uma partida: ${maxGoldEarned}</li>
+    <li>Total de ouro gasto: ${totalGoldSpent}</li>
+    <li>Quantidade de habilidades usadas: ${totalAbilitiesUsed}</li>
+  `;
 }
 
 window.addEventListener('load', () => {
