@@ -358,6 +358,7 @@
     <button class="menu-item" id="showLeagues">Ligas</button>
     <button class="menu-item" id="showStatistics">Estatísticas</button>
     <button class="menu-item" id="showExportImport">Exportar/Importar</button>
+    <button class="menu-item" id="claimDailyReward">Recompensa Diária</button>
   </div>
 </div>
 <div id="leaguesScreen" style="display: none;">
@@ -416,6 +417,8 @@ let totalDefeats = 0;
 let maxGoldEarned = 0;
 let totalGoldSpent = 0;
 let totalAbilitiesUsed = 0;
+let lastDailyReward = 0;
+let dailyRewardStreak = 0;
 
 function showNameInputScreen() {
   document.getElementById('nameInputScreen').style.display = 'flex';
@@ -1353,6 +1356,8 @@ function saveGameState() {
     maxGoldEarned: maxGoldEarned,
     totalGoldSpent: totalGoldSpent,
     totalAbilitiesUsed: totalAbilitiesUsed,
+    lastDailyReward: lastDailyReward,
+    dailyRewardStreak: dailyRewardStreak,
   };
   localStorage.setItem('quantioGameState', JSON.stringify(gameState));
 }
@@ -1381,6 +1386,8 @@ function loadGameState() {
     maxGoldEarned = gameState.maxGoldEarned || 0;
     totalGoldSpent = gameState.totalGoldSpent || 0;
     totalAbilitiesUsed = gameState.totalAbilitiesUsed || 0;
+    lastDailyReward = gameState.lastDailyReward || 0;
+    dailyRewardStreak = gameState.dailyRewardStreak || 0;
     updateTrophyCount();
     updateLeague();
     updateMoneyCount();
@@ -1410,6 +1417,26 @@ function updateStatistics() {
     <li>Total de ouro gasto: ${totalGoldSpent}</li>
     <li>Quantidade de habilidades usadas: ${totalAbilitiesUsed}</li>
   `;
+}
+
+function claimDailyReward() {
+  const now = Date.now();
+  const oneDayInMs = 24 * 60 * 60 * 1000;
+  
+  if (now - lastDailyReward >= oneDayInMs) {
+    dailyRewardStreak = Math.min(dailyRewardStreak + 1, 7);
+    const rewardAmount = 50 + (dailyRewardStreak * 10);
+    money += rewardAmount;
+    lastDailyReward = now;
+    updateMoneyCount();
+    saveGameState();
+    alert(`Você recebeu ${rewardAmount} moedas como recompensa diária! Sequência atual: ${dailyRewardStreak} dia(s).`);
+  } else {
+    const timeLeft = new Date(lastDailyReward + oneDayInMs - now);
+    const hoursLeft = timeLeft.getUTCHours();
+    const minutesLeft = timeLeft.getUTCMinutes();
+    alert(`Você já reclamou sua recompensa diária. Volte em ${hoursLeft}h ${minutesLeft}m para a próxima recompensa.`);
+  }
 }
 
 showLeaguesButton.addEventListener('click', showLeaguesScreen);
@@ -1452,6 +1479,8 @@ document.getElementById('returnFromStatistics').addEventListener('click', () => 
   document.getElementById('statisticsScreen').style.display = 'none';
   lobby.style.display = 'flex';
 });
+
+document.getElementById('claimDailyReward').addEventListener('click', claimDailyReward);
 
 document.addEventListener('keydown', (e) => {
   if (!player.isStuck) {
