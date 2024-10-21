@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><base href="https://enhanced-survival-shooter-v3.example.com/">
+<html><head><base href="https://enhanced-survival-shooter-v3.example.com/">
 <meta charset="UTF-8">
 <title>Quantio by Calzsan: Jogo de Sobrevivência</title>
 <style>
@@ -37,6 +37,34 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+  #nameInputScreen {
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    max-width: 400px;
+    margin: 50px auto;
+  }
+  #playerNameInput {
+    margin: 20px 0;
+    padding: 10px;
+    font-size: 18px;
+    width: 100%;
+    max-width: 300px;
+  }
+  #submitName {
+    font-size: 18px;
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
   #lobby {
     background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
     display: flex;
@@ -60,6 +88,11 @@
     font-size: 24px;
     color: #ddd;
     margin-bottom: 40px;
+  }
+  #playerNameDisplay {
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 20px;
   }
   .stats-container {
     display: flex;
@@ -201,20 +234,35 @@
     justify-content: center;
     z-index: 10;
   }
-  #shopItems {
-    margin: 20px 0;
+  .shop-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  #moneyDisplay {
+    font-size: 24px;
+    margin-bottom: 20px;
   }
   .shop-item {
-    font-size: 20px;
-    margin: 10px;
-    padding: 10px 20px;
-    background-color: #444;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+    background: linear-gradient(135deg, #3494e6, #ec6ead);
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
   .shop-item:hover {
-    background-color: #666;
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+  .shop-item-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  .shop-item-cost {
+    font-size: 16px;
   }
   #eventScreen {
     position: absolute;
@@ -229,6 +277,36 @@
     justify-content: center;
     z-index: 10;
   }
+  #exportImportScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  #exportImportCode {
+    margin: 20px 0;
+    padding: 10px;
+    font-size: 16px;
+    width: 80%;
+    max-width: 600px;
+  }
+  #exportMoneyButton, #exportAccountButton, #importButton {
+    font-size: 18px;
+    padding: 10px 20px;
+    margin: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
@@ -236,9 +314,16 @@
   <div class="loader"></div>
   <p>Carregando Quantio...</p>
 </div>
+<div id="nameInputScreen" style="display: none;">
+  <h2>Bem-vindo ao Quantio!</h2>
+  <p>Por favor, insira seu nome:</p>
+  <input type="text" id="playerNameInput" maxlength="20">
+  <button id="submitName">Confirmar</button>
+</div>
 <div id="lobby">
   <h1 class="game-title">Quantio</h1>
   <h2 class="game-subtitle">by Calzsan</h2>
+  <div id="playerNameDisplay"></div>
   <div class="stats-container">
     <div class="stat-item">
       <div class="stat-value" id="trophyCount">0</div>
@@ -258,6 +343,7 @@
     <button class="menu-item" id="showEvents" disabled="" style="opacity: 0.5; cursor: not-allowed;">Em manutenção por Calzsan</button>
     <button class="menu-item" id="showShop">Loja</button>
     <button class="menu-item" id="showLeagues">Ligas</button>
+    <button class="menu-item" id="showExportImport">Exportar/Importar</button>
   </div>
 </div>
 <div id="leaguesScreen" style="display: none;">
@@ -267,7 +353,8 @@
 </div>
 <div id="shopScreen" style="display: none;">
   <h2>Loja</h2>
-  <div id="shopItems"></div>
+  <div id="moneyDisplay"></div>
+  <div id="shopItems" class="shop-grid"></div>
   <div class="menu-item" id="returnFromShop">Voltar ao Lobby</div>
 </div>
 <div id="eventScreen" style="display: none;">
@@ -278,6 +365,49 @@
   <div class="menu-item" id="startEvent">Iniciar Evento</div>
   <div class="menu-item" id="returnFromEvent">Voltar ao Lobby</div>
 </div>
+<div id="exportImportScreen" style="display: none;">
+  <h2>Exportar/Importar Dados</h2>
+  <button id="exportMoneyButton">Exportar Moedas</button>
+  <button id="exportAccountButton">Exportar Conta Completa</button>
+  <textarea id="exportImportCode" rows="5" cols="50" placeholder="Cole o código aqui para importar"></textarea>
+  <button id="importButton">Importar Dados</button>
+  <div class="menu-item" id="returnFromExportImport">Voltar ao Lobby</div>
+</div>
+<canvas id="gameCanvas"></canvas>
+<div id="healthBar"><div id="healthFill"></div></div>
+<div id="timerDisplay"></div>
+<div id="gameOverScreen">
+  <div id="gameOverMessage"></div>
+  <div id="trophyChange"></div>
+  <div id="returnToLobby">Voltar ao Lobby</div>
+</div>
+<div id="leaguesScreen" style="display: none;">
+  <h2>Ligas e Troféus</h2>
+  <ul id="leaguesList"></ul>
+  <div class="menu-item" id="returnFromLeagues">Voltar ao Lobby</div>
+</div>
+<div id="shopScreen" style="display: none;">
+  <h2>Loja</h2>
+  <div id="moneyDisplay"></div>
+  <div id="shopItems" class="shop-grid"></div>
+  <div class="menu-item" id="returnFromShop">Voltar ao Lobby</div>
+</div>
+<div id="eventScreen" style="display: none;">
+  <h2>Evento Especial</h2>
+  <p>Sobreviva por 60 segundos em cada partida! Complete 9 vitórias antes de 3 derrotas para ganhar o torneio. Prêmio: 1500 moedas e um distintivo exclusivo de campeão do evento!</p>
+  <p>Vitórias: <span id="eventWins">0</span>/9</p>
+  <p>Derrotas: <span id="eventLosses">0</span>/3</p>
+  <div class="menu-item" id="startEvent">Iniciar Evento</div>
+  <div class="menu-item" id="returnFromEvent">Voltar ao Lobby</div>
+</div>
+<div id="exportImportScreen" style="display: none;">
+  <h2>Exportar/Importar Dados</h2>
+  <button id="exportMoneyButton">Exportar Moedas</button>
+  <button id="exportAccountButton">Exportar Conta Completa</button>
+  <textarea id="exportImportCode" rows="5" cols="50" placeholder="Cole o código aqui para importar"></textarea>
+  <button id="importButton">Importar Dados</button>
+  <div class="menu-item" id="returnFromExportImport">Voltar ao Lobby</div>
+</div>
 <canvas id="gameCanvas"></canvas>
 <div id="healthBar"><div id="healthFill"></div></div>
 <div id="timerDisplay"></div>
@@ -287,6 +417,39 @@
   <div id="returnToLobby">Voltar ao Lobby</div>
 </div>
 <script>
+let lastExportedCode = '';
+let importedCodes = new Set();
+let playerName = '';
+
+function showNameInputScreen() {
+  document.getElementById('nameInputScreen').style.display = 'flex';
+  document.getElementById('lobby').style.display = 'none';
+}
+
+function hideNameInputScreen() {
+  document.getElementById('nameInputScreen').style.display = 'none';
+  document.getElementById('lobby').style.display = 'flex';
+}
+
+function setPlayerName() {
+  const nameInput = document.getElementById('playerNameInput');
+  playerName = nameInput.value.trim();
+  if (playerName) {
+    localStorage.setItem('quantioPlayerName', playerName);
+    hideNameInputScreen();
+    updatePlayerNameDisplay();
+  } else {
+    alert('Por favor, insira um nome válido.');
+  }
+}
+
+function updatePlayerNameDisplay() {
+  const nameDisplay = document.getElementById('playerNameDisplay');
+  if (nameDisplay) {
+    nameDisplay.textContent = `Jogador: ${playerName}`;
+  }
+}
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const healthFill = document.getElementById('healthFill');
@@ -309,12 +472,16 @@ let gameTimerInterval;
 let playerLevel = 1;
 
 let activePowerUps = {
-  shields: 0,
   doubleProjectiles: false,
-  damageReduction: 1
+  damageReduction: 1,
+  repulsion: false,
+  speedBoost: false,
+  explosiveShot: false,
+  temporaryShield: false,
+  regeneration: false,
+  freezeShot: false
 };
 
-let shields = 0;
 let doubleProjectiles = false;
 let damageReduction = 1;
 
@@ -324,9 +491,14 @@ let eventEliminated = false;
 let inEvent = false;
 
 const shopItems = [
-  { name: 'Escudo', cost: 100, effect: () => activePowerUps.shields++ },
   { name: 'Tiros 2x', cost: 200, effect: () => activePowerUps.doubleProjectiles = true },
-  { name: 'Redução de Dano 2x', cost: 300, effect: () => activePowerUps.damageReduction = 0.5 }
+  { name: 'Redução de Dano 2x', cost: 300, effect: () => activePowerUps.damageReduction = 0.5 },
+  { name: 'Repulsão', cost: 300, effect: () => activePowerUps.repulsion = true },
+  { name: 'Velocidade +50%', cost: 250, effect: () => activePowerUps.speedBoost = true },
+  { name: 'Tiro Explosivo', cost: 400, effect: () => activePowerUps.explosiveShot = true },
+  { name: 'Escudo Temporário', cost: 350, effect: () => activePowerUps.temporaryShield = true },
+  { name: 'Regeneração', cost: 300, effect: () => activePowerUps.regeneration = true },
+  { name: 'Tiro Congelante', cost: 350, effect: () => activePowerUps.freezeShot = true }
 ];
 
 canvas.width = window.innerWidth;
@@ -569,10 +741,15 @@ function moveEnemies() {
     let moveX, moveY;
 
     if (enemy.type === 'fast') {
-      moveX = dx / distance;
-      moveY = dy / distance;
+      if (activePowerUps.repulsion && distance < 100) {
+        moveX = -dx / distance;
+        moveY = -dy / distance;
+      } else {
+        moveX = dx / distance;
+        moveY = dy / distance;
+      }
     } else {
-      if (distance < 200) {
+      if (distance < 200 || (activePowerUps.repulsion && distance < 100)) {
         moveX = -dx / distance;
         moveY = -dy / distance;
       } else {
@@ -623,13 +800,35 @@ function moveEnemies() {
     }
 
     if (enemy.type === 'fast' && distance < enemy.radius + player.radius) {
-      player.health -= 2 * damageReduction;
-      updateHealthBar();
-      if (player.health <= 0) {
-        gameOver(false);
+      if (!activePowerUps.temporaryShield) {
+        player.health -= 2 * activePowerUps.damageReduction;
+        updateHealthBar();
+        if (player.health <= 0) {
+          gameOver(false);
+        }
       }
     }
   });
+}
+
+function movePlayer() {
+  if (!player.isStuck) {
+    const speedMultiplier = activePowerUps.speedBoost ? 1.5 : 1;
+    player.x += player.dx * speedMultiplier;
+    player.y += player.dy * speedMultiplier;
+    player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
+    player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
+  } else {
+    player.stuckTime--;
+    if (player.stuckTime <= 0) {
+      player.isStuck = false;
+    }
+  }
+
+  if (activePowerUps.regeneration && player.health < 100) {
+    player.health = Math.min(100, player.health + 0.1);
+    updateHealthBar();
+  }
 }
 
 function drawBullets() {
@@ -669,20 +868,6 @@ function drawCrosshair() {
   ctx.closePath();
 }
 
-function movePlayer() {
-  if (!player.isStuck) {
-    player.x += player.dx;
-    player.y += player.dy;
-    player.x = Math.max(player.radius, Math.min(canvas.width - player.radius, player.x));
-    player.y = Math.max(player.radius, Math.min(canvas.height - player.radius, player.y));
-  } else {
-    player.stuckTime--;
-    if (player.stuckTime <= 0) {
-      player.isStuck = false;
-    }
-  }
-}
-
 function moveBullets() {
   bullets.forEach((bullet, index) => {
     bullet.x += bullet.dx;
@@ -710,6 +895,25 @@ function checkCollisions() {
 
       if (distance < bullet.radius + enemy.radius) {
         bullets.splice(bIndex, 1);
+        
+        if (bullet.type === 'explosive') {
+          enemies.forEach((nearbyEnemy, nearbyIndex) => {
+            const nearbyDx = nearbyEnemy.x - enemy.x;
+            const nearbyDy = nearbyEnemy.y - enemy.y;
+            const nearbyDistance = Math.sqrt(nearbyDx * nearbyDx + nearbyDy * nearbyDy);
+            if (nearbyDistance < 100) {
+              enemies.splice(nearbyIndex, 1);
+            }
+          });
+        } else if (bullet.type === 'freeze') {
+          enemy.speed *= 0.5;
+          enemy.color = '#00ffff';
+          setTimeout(() => {
+            enemy.speed *= 2;
+            enemy.color = enemy.originalColor;
+          }, 3000);
+        }
+        
         enemies.splice(eIndex, 1);
       }
     });
@@ -800,11 +1004,14 @@ function gameOver(won) {
     updateEventScreen();
   }
 
-  shields = 0;
   doubleProjectiles = false;
   damageReduction = 1;
   
   saveGameState();
+
+  setTimeout(() => {
+    location.reload();
+  }, 3000);
 }
 
 function resetEventStatus() {
@@ -860,14 +1067,18 @@ function startGame(isEvent = false) {
   document.getElementById('healthBar').style.display = 'block';
   resetGame();
 
-  shields = activePowerUps.shields;
   doubleProjectiles = activePowerUps.doubleProjectiles;
   damageReduction = activePowerUps.damageReduction;
 
   activePowerUps = {
-    shields: 0,
     doubleProjectiles: false,
-    damageReduction: 1
+    damageReduction: 1,
+    repulsion: false,
+    speedBoost: false,
+    explosiveShot: false,
+    temporaryShield: false,
+    regeneration: false,
+    freezeShot: false
   };
 
   gameInProgress = true;
@@ -922,11 +1133,17 @@ function showShopScreen() {
 
 function updateShopItems() {
   const shopItemsContainer = document.getElementById('shopItems');
+  const moneyDisplay = document.getElementById('moneyDisplay');
   shopItemsContainer.innerHTML = '';
+  moneyDisplay.textContent = `Suas moedas: ${money}`;
+  
   shopItems.forEach(item => {
     const itemElement = document.createElement('div');
     itemElement.className = 'shop-item';
-    itemElement.textContent = `${item.name} - ${item.cost} moedas`;
+    itemElement.innerHTML = `
+      <div class="shop-item-name">${item.name}</div>
+      <div class="shop-item-cost">${item.cost} moedas</div>
+    `;
     itemElement.addEventListener('click', () => buyItem(item));
     shopItemsContainer.appendChild(itemElement);
   });
@@ -958,6 +1175,136 @@ function updateEventScreen() {
   document.getElementById('eventLosses').textContent = eventLosses;
 }
 
+function showExportImportScreen() {
+  lobby.style.display = 'none';
+  document.getElementById('exportImportScreen').style.display = 'flex';
+}
+
+function exportMoney() {
+  const amount = prompt("Digite a quantidade de moedas que deseja exportar:", money);
+  if (amount === null) return; // Usuário cancelou
+  
+  const parsedAmount = parseInt(amount);
+  if (isNaN(parsedAmount) || parsedAmount <= 0 || parsedAmount > money) {
+    alert("Quantidade inválida. Por favor, insira um número válido entre 1 e " + money);
+    return;
+  }
+
+  const moneyData = {
+    type: 'money',
+    money: parsedAmount,
+    timestamp: Date.now()
+  };
+  const exportCode = btoa(JSON.stringify(moneyData));
+  
+  if (exportCode !== lastExportedCode) {
+    document.getElementById('exportImportCode').value = exportCode;
+    
+    money -= parsedAmount;
+    updateMoneyCount();
+    saveGameState();
+    
+    lastExportedCode = exportCode;
+    importedCodes.add(exportCode);
+    alert(`${parsedAmount} moedas exportadas! Copie o código para usar em outro dispositivo.`);
+  } else {
+    alert("Este código já foi exportado. Por favor, altere o valor da doação para gerar um novo código.");
+  }
+}
+
+function exportAccount() {
+  const accountData = {
+    type: 'account',
+    trophyCount: trophyCount,
+    league: leagueInfoElement.textContent.split(': ')[1],
+    playerLevel: playerLevel,
+    money: money,
+    activePowerUps: activePowerUps
+  };
+  const exportCode = btoa(JSON.stringify(accountData));
+  document.getElementById('exportImportCode').value = exportCode;
+  alert('Conta completa exportada! Copie o código para usar em outro dispositivo.');
+}
+
+function importGameData() {
+  const importCode = document.getElementById('exportImportCode').value.trim();
+  try {
+    const gameData = JSON.parse(atob(importCode));
+    if (gameData.type === 'money') {
+      if (importedCodes.has(importCode)) {
+        alert('Este código já foi usado. Por favor, use um novo código.');
+        return;
+      }
+      money += gameData.money;
+      updateMoneyCount();
+      importedCodes.add(importCode);
+      alert(`${gameData.money} moedas importadas com sucesso!`);
+    } else if (gameData.type === 'account') {
+      if (importedCodes.has(importCode)) {
+        alert('Este código já foi usado. Por favor, use um novo código.');
+        return;
+      }
+      trophyCount = gameData.trophyCount;
+      playerLevel = gameData.playerLevel;
+      money = gameData.money;
+      activePowerUps = gameData.activePowerUps;
+      updateTrophyCount();
+      updateLeague();
+      updateMoneyCount();
+      importedCodes.add(importCode);
+      alert('Conta completa importada com sucesso!');
+    } else {
+      throw new Error('Tipo de dados inválido');
+    }
+    saveGameState();
+  } catch (error) {
+    alert('Código inválido. Por favor, verifique e tente novamente.');
+  }
+}
+
+function saveGameState() {
+  const gameState = {
+    trophyCount: trophyCount,
+    league: leagueInfoElement.textContent.split(': ')[1],
+    playerLevel: playerLevel,
+    money: money,
+    activePowerUps: activePowerUps,
+    importedCodes: Array.from(importedCodes)
+  };
+  localStorage.setItem('quantioGameState', JSON.stringify(gameState));
+}
+
+function loadGameState() {
+  const savedState = localStorage.getItem('quantioGameState');
+  if (savedState) {
+    const gameState = JSON.parse(savedState);
+    trophyCount = gameState.trophyCount;
+    playerLevel = gameState.playerLevel || 1;
+    money = gameState.money || 0;
+    activePowerUps = gameState.activePowerUps || {
+      doubleProjectiles: false,
+      damageReduction: 1,
+      repulsion: false,
+      speedBoost: false,
+      explosiveShot: false,
+      temporaryShield: false,
+      regeneration: false,
+      freezeShot: false
+    };
+    importedCodes = new Set(gameState.importedCodes || []);
+    updateTrophyCount();
+    updateLeague();
+    updateMoneyCount();
+  }
+  
+  playerName = localStorage.getItem('quantioPlayerName');
+  if (!playerName) {
+    showNameInputScreen();
+  } else {
+    updatePlayerNameDisplay();
+  }
+}
+
 showLeaguesButton.addEventListener('click', showLeaguesScreen);
 
 returnFromLeaguesButton.addEventListener('click', () => {
@@ -971,6 +1318,7 @@ returnToLobbyButton.addEventListener('click', () => {
   updateMoneyCount();
 });
 
+document.getElementById('submitName').addEventListener('click', setPlayerName);
 document.getElementById('showShop').addEventListener('click', showShopScreen);
 document.getElementById('returnFromShop').addEventListener('click', () => {
   document.getElementById('shopScreen').style.display = 'none';
@@ -990,6 +1338,15 @@ document.getElementById('startEvent').addEventListener('click', () => {
   }
   document.getElementById('eventScreen').style.display = 'none';
   startGame(true);
+});
+
+document.getElementById('exportMoneyButton').addEventListener('click', exportMoney);
+document.getElementById('exportAccountButton').addEventListener('click', exportAccount);
+document.getElementById('importButton').addEventListener('click', importGameData);
+document.getElementById('showExportImport').addEventListener('click', showExportImportScreen);
+document.getElementById('returnFromExportImport').addEventListener('click', () => {
+  document.getElementById('exportImportScreen').style.display = 'none';
+  lobby.style.display = 'flex';
 });
 
 document.addEventListener('keydown', (e) => {
@@ -1020,27 +1377,33 @@ canvas.addEventListener('mousemove', (e) => {
 canvas.addEventListener('mousedown', (e) => {
   const angle = Math.atan2(e.clientY - player.y, e.clientX - player.x);
   const speed = doubleProjectiles ? 10 : 5;
+  const bulletType = activePowerUps.explosiveShot ? 'explosive' : (activePowerUps.freezeShot ? 'freeze' : 'normal');
+  
   bullets.push({
     x: player.x,
     y: player.y,
     dx: Math.cos(angle) * speed,
     dy: Math.sin(angle) * speed,
-    radius: 5
+    radius: 5,
+    type: bulletType
   });
+  
   if (doubleProjectiles) {
     bullets.push({
       x: player.x,
       y: player.y,
       dx: Math.cos(angle + 0.1) * speed,
       dy: Math.sin(angle + 0.1) * speed,
-      radius: 5
+      radius: 5,
+      type: bulletType
     });
     bullets.push({
       x: player.x,
       y: player.y,
       dx: Math.cos(angle - 0.1) * speed,
       dy: Math.sin(angle - 0.1) * speed,
-      radius: 5
+      radius: 5,
+      type: bulletType
     });
   }
 });
@@ -1070,9 +1433,8 @@ function saveGameState() {
     league: leagueInfoElement.textContent.split(': ')[1],
     playerLevel: playerLevel,
     money: money,
-    eventWins: eventWins,
-    eventLosses: eventLosses,
-    eventEliminated: eventEliminated
+    activePowerUps: activePowerUps,
+    importedCodes: Array.from(importedCodes)
   };
   localStorage.setItem('quantioGameState', JSON.stringify(gameState));
 }
@@ -1084,13 +1446,27 @@ function loadGameState() {
     trophyCount = gameState.trophyCount;
     playerLevel = gameState.playerLevel || 1;
     money = gameState.money || 0;
-    eventWins = gameState.eventWins || 0;
-    eventLosses = gameState.eventLosses || 0;
-    eventEliminated = gameState.eventEliminated || false;
+    activePowerUps = gameState.activePowerUps || {
+      doubleProjectiles: false,
+      damageReduction: 1,
+      repulsion: false,
+      speedBoost: false,
+      explosiveShot: false,
+      temporaryShield: false,
+      regeneration: false,
+      freezeShot: false
+    };
+    importedCodes = new Set(gameState.importedCodes || []);
     updateTrophyCount();
     updateLeague();
     updateMoneyCount();
-    updateEventScreen();
+  }
+  
+  playerName = localStorage.getItem('quantioPlayerName');
+  if (!playerName) {
+    showNameInputScreen();
+  } else {
+    updatePlayerNameDisplay();
   }
 }
 
@@ -1124,5 +1500,4 @@ document.getElementById('startGame').addEventListener('click', () => {
 updateTrophyCount();
 updateLeague();
 </script>
-
 </body></html>
