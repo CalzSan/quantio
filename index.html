@@ -320,6 +320,42 @@
     justify-content: center;
     z-index: 10;
   }
+  #chestRewardsScreen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .chest {
+    width: 100px;
+    height: 100px;
+    background-color: #8B4513;
+    border: 2px solid #D2691E;
+    margin: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-weight: bold;
+    color: #FFD700;
+  }
+  .chest.locked {
+    background-color: #A9A9A9;
+    cursor: not-allowed;
+  }
+  #chestContainer {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    max-width: 600px;
+  }
 </style>
 </head>
 <body>
@@ -359,6 +395,7 @@
     <button class="menu-item" id="showStatistics">Estatísticas</button>
     <button class="menu-item" id="showExportImport">Exportar/Importar</button>
     <button class="menu-item" id="claimDailyReward">Recompensa Diária</button>
+    <button class="menu-item" id="showChestRewards">Recompensas de Baús</button>
   </div>
 </div>
 <div id="leaguesScreen" style="display: none;">
@@ -399,6 +436,11 @@
   <ul id="statisticsList"></ul>
   <div class="menu-item" id="returnFromStatistics">Voltar ao Lobby</div>
 </div>
+<div id="chestRewardsScreen" style="display: none;">
+  <h2>Recompensas de Baús</h2>
+  <div id="chestContainer"></div>
+  <div class="menu-item" id="returnFromChestRewards">Voltar ao Lobby</div>
+</div>
 <canvas id="gameCanvas"></canvas>
 <div id="healthBar"><div id="healthFill"></div></div>
 <div id="timerDisplay"></div>
@@ -419,6 +461,12 @@ let totalGoldSpent = 0;
 let totalAbilitiesUsed = 0;
 let lastDailyReward = 0;
 let dailyRewardStreak = 0;
+
+let chests = [
+  { id: 1, locked: true, respawnTime: 0 },
+  { id: 2, locked: true, respawnTime: 0 },
+  { id: 3, locked: true, respawnTime: 0 }
+];
 
 function showNameInputScreen() {
   document.getElementById('nameInputScreen').style.display = 'flex';
@@ -966,6 +1014,12 @@ function gameOver(won) {
     gameOverMessage.textContent = `Vitória! Você sobreviveu por ${gameTime.toFixed(1)} segundos!`;
     trophyChangeElement.textContent = `Troféus +${trophyChange} | Moedas +${moneyEarned}`;
     
+    const lockedChest = chests.find(chest => chest.locked);
+    if (lockedChest) {
+      lockedChest.locked = false;
+      alert("Você desbloqueou um baú! Vá para a tela de Recompensas de Baús para abri-lo.");
+    }
+    
     if (inEvent) {
       eventWins++;
       if (eventWins === 9) {
@@ -1360,6 +1414,7 @@ function saveGameState() {
     dailyRewardStreak: dailyRewardStreak,
   };
   localStorage.setItem('quantioGameState', JSON.stringify(gameState));
+  localStorage.setItem('quantioChests', JSON.stringify(chests));
 }
 
 function loadGameState() {
@@ -1398,6 +1453,11 @@ function loadGameState() {
     showNameInputScreen();
   } else {
     updatePlayerNameDisplay();
+  }
+  
+  const savedChests = JSON.parse(localStorage.getItem('quantioChests'));
+  if (savedChests) {
+    chests = savedChests;
   }
 }
 
@@ -1439,32 +1499,82 @@ function claimDailyReward() {
   }
 }
 
-showLeaguesButton.addEventListener('click', showLeaguesScreen);
+function showChestRewardsScreen() {
+  lobby.style.display = 'none';
+  document.getElementById('chestRewardsScreen').style.display = 'flex';
+  updateChestDisplay();
+}
 
+function updateChestDisplay() {
+  const chestContainer = document.getElementById('chestContainer');
+  chestContainer.innerHTML = '';
+  
+  chests.forEach(chest => {
+    const chestElement = document.createElement('div');
+    chestElement.className = `chest ${chest.locked ? 'locked' : ''}`;
+    chestElement.textContent = chest.locked ? 'Bloqueado' : 'Abrir';
+    chestElement.onclick = () => openChest(chest.id);
+    
+    if (chest.respawnTime > Date.now()) {
+      const timeLeft = Math.ceil((chest.respawnTime - Date.now()) / 1000 / 60);
+      chestElement.textContent = `${timeLeft} min`;
+      chestElement.style.cursor = 'not-allowed';
+    }
+    
+    chestContainer.appendChild(chestElement);
+  });
+}
+
+function openChest(chestId) {
+  const chest = chests.find(c => c.id === chestId);
+  if (chest.locked || chest.respawnTime > Date.now()) return;
+  
+  const reward = getChestReward();
+  alert(`Você ganhou: ${reward}`);
+  
+  chest.respawnTime = Date.now() + (3 * 60 * 60 * 1000); // 3 hours
+  updateChestDisplay();
+  saveGameState();
+}
+
+function getChestReward() {
+  const random = Math.random();
+  if (random < 0.1) { // 10% chance for ability
+    return "Uma habilidade aleatória!";
+  } else if (random < 0.2) { // 10% chance for trophies
+    const trophies = Math.floor(Math.random() * 8) + 3;
+    trophyCount += trophies;
+    updateTrophyCount();
+    return `${trophies} troféus!`;
+  } else { // 80% chance for coins
+    const coins = Math.floor(Math.random() * 291) + 10;
+    money += coins;
+    updateMoneyCount();
+    return `${coins} moedas!`;
+  }
+}
+
+showLeaguesButton.addEventListener('click', showLeaguesScreen);
 returnFromLeaguesButton.addEventListener('click', () => {
   leaguesScreen.style.display = 'none';
   lobby.style.display = 'flex';
 });
-
 returnToLobbyButton.addEventListener('click', () => {
   gameOverScreen.style.display = 'none';
   lobby.style.display = 'flex';
   updateMoneyCount();
 });
-
 document.getElementById('submitName').addEventListener('click', setPlayerName);
 document.getElementById('showShop').addEventListener('click', showShopScreen);
 document.getElementById('returnFromShop').addEventListener('click', () => {
   document.getElementById('shopScreen').style.display = 'none';
   lobby.style.display = 'flex';
 });
-
 document.getElementById('showEvents').addEventListener('click', showEventScreen);
 document.getElementById('returnFromEvent').addEventListener('click', () => {
   document.getElementById('eventScreen').style.display = 'none';
   lobby.style.display = 'flex';
 });
-
 document.getElementById('exportMoneyButton').addEventListener('click', exportMoney);
 document.getElementById('exportAccountButton').addEventListener('click', exportAccount);
 document.getElementById('importButton').addEventListener('click', importGameData);
@@ -1473,14 +1583,17 @@ document.getElementById('returnFromExportImport').addEventListener('click', () =
   document.getElementById('exportImportScreen').style.display = 'none';
   lobby.style.display = 'flex';
 });
-
 document.getElementById('showStatistics').addEventListener('click', showStatisticsScreen);
 document.getElementById('returnFromStatistics').addEventListener('click', () => {
   document.getElementById('statisticsScreen').style.display = 'none';
   lobby.style.display = 'flex';
 });
-
 document.getElementById('claimDailyReward').addEventListener('click', claimDailyReward);
+document.getElementById('showChestRewards').addEventListener('click', showChestRewardsScreen);
+document.getElementById('returnFromChestRewards').addEventListener('click', () => {
+  document.getElementById('chestRewardsScreen').style.display = 'none';
+  lobby.style.display = 'flex';
+});
 
 document.addEventListener('keydown', (e) => {
   if (!player.isStuck) {
@@ -1560,24 +1673,6 @@ function updateLeague() {
   leagueInfoElement.textContent = `Liga: ${league} (Nível ${playerLevel})`;
 }
 
-function showStatisticsScreen() {
-  lobby.style.display = 'none';
-  document.getElementById('statisticsScreen').style.display = 'flex';
-  updateStatistics();
-}
-
-function updateStatistics() {
-  const statisticsList = document.getElementById('statisticsList');
-  statisticsList.innerHTML = `
-    <li>Máximo de troféus alcançados: ${maxTrophies}</li>
-    <li>Número de vitórias: ${totalVictories}</li>
-    <li>Número de derrotas: ${totalDefeats}</li>
-    <li>Máximo de ouro ganho em uma partida: ${maxGoldEarned}</li>
-    <li>Total de ouro gasto: ${totalGoldSpent}</li>
-    <li>Quantidade de habilidades usadas: ${totalAbilitiesUsed}</li>
-  `;
-}
-
 window.addEventListener('load', () => {
   const loadingScreen = document.getElementById('loadingScreen');
   loadingScreen.style.opacity = '1';
@@ -1591,6 +1686,7 @@ window.addEventListener('load', () => {
   
   loadGameState();
   updateMoneyCount();
+  setInterval(updateChestDisplay, 60000); // Update chest display every minute
 });
 
 document.getElementById('startGame').addEventListener('click', () => {
