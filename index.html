@@ -15,7 +15,92 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.3);
       position: relative;
       overflow: hidden;
-    " onclick="alert('🎮 Atualizações Recentes:\n\n✨ Exportar e Importar Conta e Recursos\n🎨 Design Melhorado\n🎁 Recompensa Diária\n💎 Recompensas de Baús\n📊 Estatísticas da Conta\n\n🎯 Próxima Atualização:\n\n1. Modo online LAN - Jogue com seus amigos na mesma rede local!')">
+    " onclick="
+      const updates = `
+        🎮 Atualizações Recentes:
+        ═══════════════════════
+        
+        ✨ Sistema de Conta
+        • Exportar e Importar Conta
+        • Exportar e Importar Recursos
+        • Backup Automático
+        
+        🎨 Interface do Usuário
+        • Design Totalmente Renovado
+        • Animações Suaves
+        • Efeitos Visuais Melhorados
+        
+        🎁 Sistema de Recompensas
+        • Recompensa Diária Aprimorada
+        • Baús com Prêmios Especiais
+        • Bônus por Sequência de Vitórias
+        
+        📊 Estatísticas e Progresso
+        • Histórico Detalhado
+        • Conquistas Desbloqueáveis
+        • Sistema de Níveis
+        
+        🎯 Próxima Atualização:
+        ═══════════════════════
+        
+        🌐 Modo Multiplayer
+        • Jogue com Amigos (LAN)
+        • Ranking Local
+        • Chat em Tempo Real
+        
+        ⚔️ Novos Conteúdos
+        • Novos Tipos de Inimigos
+        • Habilidades Especiais
+        • Eventos Temáticos
+      `;
+      
+      const modalStyle = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(135deg, rgba(20,20,40,0.95), rgba(40,40,80,0.95));
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        font-family: 'Courier New', monospace;
+        color: #fff;
+        border: 2px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        white-space: pre-line;
+        line-height: 1.6;
+        z-index: 1000;
+      `;
+      
+      const modal = document.createElement('div');
+      modal.style.cssText = modalStyle;
+      modal.innerHTML = updates;
+      
+      const closeButton = document.createElement('button');
+      closeButton.innerHTML = '✖';
+      closeButton.style.cssText = `
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 5px;
+        transition: transform 0.3s;
+      `;
+      closeButton.onmouseover = () => closeButton.style.transform = 'scale(1.2)';
+      closeButton.onmouseout = () => closeButton.style.transform = 'scale(1)';
+      closeButton.onclick = () => modal.remove();
+      
+      modal.appendChild(closeButton);
+      document.body.appendChild(modal);
+    ">
       🎯 NOVIDADES 🎯
       <span style="
         position: absolute;
@@ -26,7 +111,14 @@
         border-radius: 10px;
         font-size: 12px;
         transform: rotate(15deg);
+        animation: bounce 1s infinite;
       ">NOVO!</span>
+      <style>
+        @keyframes bounce {
+          0%, 100% { transform: rotate(15deg) translateY(0); }
+          50% { transform: rotate(15deg) translateY(-5px); }
+        }
+      </style>
 </button>
     <style>
       @keyframes pulse {
@@ -36,7 +128,356 @@
       }
     </style>
   </div>
-  <h1 class="game-title"><span style="display:inline-block;transform:skew(-15deg,0deg);text-shadow:2px 2px 4px rgba(0,0,0,.5),0 0 10px rgba(255,255,255,.3);color:#fff;font-family:'Arial Black',sans-serif;letter-spacing:2px;padding:10px 20px;border:3px solid #2980b9;border-radius:10px;box-shadow:0 5px 15px rgba(41,128,185,.4)">Q<span style="font-size:1.2em;vertical-align:middle">U</span>ANT<span style="font-size:1.2em;vertical-align:middle">I</span>O</span></h1><h2 class="game-subtitle"><span style="background:linear-gradient(45deg,#3498db,#2980b9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:Montserrat,sans-serif;font-size:24px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:8px 16px;border:2px solid #2980b9;border-radius:50px;box-shadow:0 5px 15px rgba(41,128,185,.3);display:inline-block;transition:all .3s ease">by Calzsan</span></h2><div id="playerNameDisplay" style="font-size:22px;color:#fff;text-shadow:2px 2px 4px rgba(0,0,0,.7);margin:20px 0;padding:10px 20px;background:linear-gradient(135deg,rgba(52,152,219,.7),rgba(41,128,185,.7));border-radius:50px;box-shadow:0 4px 6px rgba(0,0,0,.1);display:inline-block;transition:all .3s ease;font-family:Arial,sans-serif;font-weight:700;letter-spacing:1px;border:2px solid rgba(255,255,255,.3);backdrop-filter:blur(5px)"><span style="background:-webkit-linear-gradient(45deg,#fff,#6dd5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent"></span></div><div class="stats-container" style="display:flex;justify-content:space-around;background:linear-gradient(135deg,rgba(52,152,219,.5),rgba(41,128,185,.5));border-radius:20px;padding:20px;margin-bottom:30px;width:100%;box-shadow:0 10px 20px rgba(0,0,0,.2);backdrop-filter:blur(5px);border:2px solid rgba(255,255,255,.1)"><div class="stat-item" style="text-align:center;background:rgba(255,255,255,.2);padding:15px;border-radius:15px;transition:all .3s ease;border:2px solid #000"><div class="stat-value" id="trophyCount" style="font-size:28px;font-weight:700;color:#f1c40f;text-shadow:2px 2px 4px rgba(0,0,0,.5),-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000;margin-bottom:5px">0</div><div class="stat-label" style="font-size:16px;color:#ecf0f1;text-transform:uppercase;letter-spacing:1px">Troféus</div><svg width="40" height="40" viewBox="0 0 24 24" style="margin-top:10px"><path fill="#f1c40f" stroke="#000000" stroke-width="2" d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z"></path></svg></div><div class="stat-item" style="text-align:center;background:rgba(255,255,255,.2);padding:15px;border-radius:15px;transition:all .3s ease;border:2px solid #000"><div class="stat-value" id="leagueInfo" style="font-size:28px;font-weight:700;color:#1a5f9e;text-shadow:2px 2px 4px rgba(0,0,0,.5),-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000;margin-bottom:5px">Sem Liga</div><div class="stat-label" style="font-size:16px;color:#ecf0f1;text-transform:uppercase;letter-spacing:1px">Liga</div><svg width="40" height="40" viewBox="0 0 24 24" style="margin-top:10px"><path fill="#3498db" stroke="#000000" stroke-width="2" d="M20.2,2H19.5H18C17.1,2 16,3 16,4H8C8,3 6.9,2 6,2H4.5H3.8H2V11C2,12 3,13 4,13H6.2C6.6,15 7.9,16.7 11,17V19.1C8.8,19.3 8,20.4 8,21.7V22H16V21.7C16,20.4 15.2,19.3 13,19.1V17C16.1,16.7 17.4,15 17.8,13H20C21,13 22,12 22,11V2H20.2M4,11V4H6V6V11C5.1,11 4.3,11 4,11M20,11C19.7,11 18.9,11 18,11V6V4H20V11Z"></path></svg></div><div class="stat-item" style="text-align:center;background:rgba(255,255,255,.2);padding:15px;border-radius:15px;transition:all .3s ease;border:2px solid #000"><div class="stat-value" id="moneyCount" style="font-size:28px;font-weight:700;color:#2ecc71;text-shadow:2px 2px 4px rgba(0,0,0,.5),-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000;margin-bottom:5px">0</div><div class="stat-label" style="font-size:16px;color:#ecf0f1;text-transform:uppercase;letter-spacing:1px">Moedas</div><svg width="40" height="40" viewBox="0 0 24 24" style="margin-top:10px"><path fill="#2ecc71" stroke="#000000" stroke-width="1" d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,17V16H9V14H13V13H10A1,1 0 0,1 9,12V9A1,1 0 0,1 10,8H11V7H13V8H15V10H11V11H14A1,1 0 0,1 15,12V15A1,1 0 0,1 14,16H13V17H11Z"></path></svg></div></div><div class="menu-container" style="display:grid;grid-template-columns:repeat(4,1fr);gap:15px;width:100%"><button class="menu-item" id="startGame" style="font-size:16px;padding:12px 20px;background:linear-gradient(45deg,#3498db,#2980b9);border:none;border-radius:25px;cursor:pointer;transition:all .3s ease;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:1px;box-shadow:0 5px 15px rgba(0,0,0,.2)">Iniciar Jogo</button><button class="menu-item" id="showEvents" disabled="" style="opacity:.5;cursor:not-allowed;font-size:16px;padding:12px 20px;background:linear-gradient(45deg,#95a5a6,#7f8c8d);border:none;border-radius:25px;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:1px;box-shadow:0 5px 15px rgba(0,0,0,.2)">Em manutenção</button><button class="menu-item" id="showShop" style="font-size:16px;padding:12px 20px;background:linear-gradient(45deg,#2ecc71,#27ae60);border:none;border-radius:25px;cursor:pointer;transition:all .3s ease;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:1px;box-shadow:0 5px 15px rgba(0,0,0,.2)">Loja</button><button class="menu-item" id="showLeagues" style="font-size:16px;padding:12px 20px;background:linear-gradient(45deg,#f39c12,#d35400);border:none;border-radius:25px;cursor:pointer;transition:all .3s ease;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:1px;box-shadow:0 5px 15px rgba(0,0,0,.2)">Ligas</button><button class="menu-item" id="showStatistics" style="font-size:16px;padding:12px 20px;background:linear-gradient(45deg,#9b59b6,#8e44ad);border:none;border-radius:25px;cursor:pointer;transition:all .3s ease;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:1px;box-shadow:0 5px 15px rgba(0,0,0,.2)">Estatísticas</button><button class="menu-item" id="showExportImport" style="font-size:16px;padding:12px 20px;background:linear-gradient(45deg,#e74c3c,#c0392b);border:none;border-radius:25px;cursor:pointer;transition:all .3s ease;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:1px;box-shadow:0 5px 15px rgba(0,0,0,.2)">Exportar/Importar</button><button class="menu-item" id="claimDailyReward" style="font-size:16px;padding:12px 20px;background:linear-gradient(45deg,#1abc9c,#16a085);border:none;border-radius:25px;cursor:pointer;transition:all .3s ease;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:1px;box-shadow:0 5px 15px rgba(0,0,0,.2)">Recompensa Diária</button><button class="menu-item" id="showChestRewards" style="font-size:16px;padding:12px 20px;background:linear-gradient(45deg,#e67e22,#d35400);border:none;border-radius:25px;cursor:pointer;transition:all .3s ease;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:1px;box-shadow:0 5px 15px rgba(0,0,0,.2)">Recompensas de Baús</button></div></div><div id="leaguesScreen" style="display:none"><h2 style="font-size:36px;color:#f1c40f;text-shadow:2px 2px 4px rgba(0,0,0,.5);margin-bottom:20px;background:linear-gradient(45deg,#3498db,#2980b9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;padding:10px 20px;border:2px solid #2980b9;border-radius:10px;display:inline-block;transform:skew(-5deg)">Ligas e Troféus</h2><ul id="leaguesList"></ul><div class="menu-item" id="returnFromLeagues">Voltar ao Lobby</div></div><div id="shopScreen" style="display:none"><h2>Loja</h2><div id="moneyDisplay"></div><div id="shopItems" class="shop-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;padding:20px;background:linear-gradient(135deg,rgba(41,128,185,.1),rgba(52,152,219,.1));border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.1)"><style>.shop-grid h3{grid-column:1/-1;text-align:center;font-size:24px;color:#ecf0f1;text-shadow:2px 2px 4px rgba(0,0,0,.3);margin-bottom:20px;padding:10px;background:linear-gradient(45deg,#3498db,#2980b9);border-radius:10px;box-shadow:0 5px 15px rgba(52,152,219,.3)}.shop-item{background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,.05));border-radius:15px;padding:20px;text-align:center;transition:all .3s ease;box-shadow:0 8px 20px rgba(0,0,0,.1);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(10px)}.shop-item:hover{transform:translateY(-5px);box-shadow:0 12px 25px rgba(0,0,0,.2)}.shop-item-name{font-size:18px;font-weight:700;color:#ecf0f1;margin-bottom:10px}.shop-item-cost{font-size:16px;color:#3498db;font-weight:700}.contact-info{grid-column:1/-1;background:linear-gradient(135deg,rgba(41,128,185,.2),rgba(52,152,219,.2));padding:15px;border-radius:10px;margin-top:20px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,.1)}.contact-info p{margin:5px 0;color:#ecf0f1;font-size:16px}</style></div><div class="menu-item" id="returnFromShop">Voltar ao Lobby</div></div><div id="eventScreen" style="display:none"><h2>Evento Especial</h2><p>Sobreviva por 60 segundos em cada partida! Complete 9 vitórias antes de 3 derrotas para ganhar o torneio. Prêmio: 1500 moedas e um distintivo exclusivo de campeão do evento!</p><p>Vitórias:<span id="eventWins">0</span>/9</p><p>Derrotas:<span id="eventLosses">0</span>/3</p><div class="menu-item" id="startEvent">Iniciar Evento</div><div class="menu-item" id="returnFromEvent">Voltar ao Lobby</div></div><div id="exportImportScreen" style="display:none"><h2 style="font-size:36px;color:#f1c40f;text-shadow:2px 2px 4px rgba(0,0,0,.5);margin-bottom:30px;background:linear-gradient(45deg,#3498db,#2980b9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;padding:15px 30px;border:3px solid #2980b9;border-radius:15px;display:inline-block;transform:skew(-5deg);box-shadow:0 10px 20px rgba(0,0,0,.2);font-family:'Arial Black',sans-serif;letter-spacing:2px;text-transform:uppercase;position:relative;overflow:hidden">Exportar/Importar Dados<span style="position:absolute;top:-10px;right:-10px;width:30px;height:30px;background:#e74c3c;transform:rotate(45deg)"></span></h2><div style="display:flex;flex-direction:column;align-items:center;background:linear-gradient(135deg,rgba(41,128,185,.7),rgba(52,152,219,.7));padding:20px;border-radius:15px;box-shadow:0 10px 20px rgba(0,0,0,.2);margin-bottom:20px"><input type="text" id="moneyExportCode" placeholder="Código para exportar moedas" style="width:100%;max-width:300px;padding:12px;margin-bottom:15px;border:none;border-radius:8px;font-size:16px;background-color:rgba(255,255,255,.9);color:#333;transition:all .3s ease"><button id="exportMoneyButton" style="padding:12px 24px;background:linear-gradient(45deg,#27ae60,#2ecc71);border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s ease;text-transform:uppercase;letter-spacing:1px;box-shadow:0 4px 6px rgba(0,0,0,.1)">Exportar Moedas</button></div><div style="background:linear-gradient(135deg,rgba(41,128,185,.7),rgba(52,152,219,.7));padding:20px;border-radius:15px;box-shadow:0 10px 20px rgba(0,0,0,.2);margin-bottom:20px;display:flex;flex-direction:column;align-items:center"><input type="text" id="accountExportCode" placeholder="Código para exportar conta" style="width:100%;max-width:300px;padding:12px;margin-bottom:15px;border:none;border-radius:8px;font-size:16px;background-color:rgba(255,255,255,.9);color:#333;transition:all .3s ease"><button id="exportAccountButton" style="padding:12px 24px;background:linear-gradient(45deg,#e74c3c,#c0392b);border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s ease;text-transform:uppercase;letter-spacing:1px;box-shadow:0 4px 6px rgba(0,0,0,.1)">Exportar Conta Completa</button></div><textarea id="exportImportCode" rows="5" cols="50" placeholder="Cole o código aqui para importar" style="width:100%;max-width:600px;padding:15px;margin:20px 0;font-size:16px;border:2px solid #3498db;border-radius:10px;background-color:rgba(52,152,219,.1);color:#ecf0f1;resize:vertical;transition:all .3s ease;box-shadow:0 4px 6px rgba(0,0,0,.1)"></textarea><button id="importButton" style="padding:12px 24px;background:linear-gradient(45deg,#3498db,#2980b9);border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s ease;text-transform:uppercase;letter-spacing:1px;box-shadow:0 4px 6px rgba(0,0,0,.1);margin-top:15px"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;vertical-align:middle"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>Importar Dados</button><div class="menu-item" id="returnFromExportImport">Voltar ao Lobby</div></div><div id="statisticsScreen" style="display:none"><h2 style="font-size:36px;color:#f1c40f;text-shadow:2px 2px 4px rgba(0,0,0,.5);margin-bottom:30px;background:linear-gradient(45deg,#3498db,#2980b9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;padding:15px 30px;border:3px solid #2980b9;border-radius:15px;display:inline-block;transform:skew(-5deg);box-shadow:0 10px 20px rgba(0,0,0,.2);font-family:'Arial Black',sans-serif;letter-spacing:2px;text-transform:uppercase;position:relative;overflow:hidden">Estatísticas<span style="position:absolute;top:-10px;right:-10px;width:30px;height:30px;background:#e74c3c;transform:rotate(45deg)"></span></h2><ul id="statisticsList"></ul><div class="menu-item" id="returnFromStatistics">Voltar ao Lobby</div></div><div id="chestRewardsScreen" style="display:none"><h2 style="
+  <h1 class="game-title"><span style="display:inline-block;transform:skew(-15deg,0deg);text-shadow:2px 2px 4px rgba(0,0,0,.5),0 0 10px rgba(255,255,255,.3);color:#fff;font-family:'Arial Black',sans-serif;letter-spacing:2px;padding:10px 20px;border:3px solid #2980b9;border-radius:10px;box-shadow:0 5px 15px rgba(41,128,185,.4)">Q<span style="font-size:1.2em;vertical-align:middle">U</span>ANT<span style="font-size:1.2em;vertical-align:middle">I</span>O</span></h1><h2 class="game-subtitle"><span style="background:linear-gradient(45deg,#3498db,#2980b9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:Montserrat,sans-serif;font-size:24px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:8px 16px;border:2px solid #2980b9;border-radius:50px;box-shadow:0 5px 15px rgba(41,128,185,.3);display:inline-block;transition:all .3s ease">by Calzsan</span></h2><div id="playerNameDisplay" style="font-size:22px;color:#fff;text-shadow:2px 2px 4px rgba(0,0,0,.7);margin:20px 0;padding:10px 20px;background:linear-gradient(135deg,rgba(52,152,219,.7),rgba(41,128,185,.7));border-radius:50px;box-shadow:0 4px 6px rgba(0,0,0,.1);display:inline-block;transition:all .3s ease;font-family:Arial,sans-serif;font-weight:700;letter-spacing:1px;border:2px solid rgba(255,255,255,.3);backdrop-filter:blur(5px)"><span style="background:-webkit-linear-gradient(45deg,#fff,#6dd5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent"></span></div><div class="stats-container" style="display:flex;justify-content:space-around;background:linear-gradient(135deg,rgba(52,152,219,.5),rgba(41,128,185,.5));border-radius:20px;padding:20px;margin-bottom:30px;width:100%;box-shadow:0 10px 20px rgba(0,0,0,.2);backdrop-filter:blur(5px);border:2px solid rgba(255,255,255,.1)"><div class="stat-item" style="text-align:center;background:rgba(255,255,255,.2);padding:15px;border-radius:15px;transition:all .3s ease;border:2px solid #000"><div class="stat-value" id="trophyCount" style="font-size:28px;font-weight:700;color:#f1c40f;text-shadow:2px 2px 4px rgba(0,0,0,.5),-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000;margin-bottom:5px">0</div><div class="stat-label" style="font-size:16px;color:#ecf0f1;text-transform:uppercase;letter-spacing:1px">Troféus</div><svg width="40" height="40" viewBox="0 0 24 24" style="margin-top:10px"><path fill="#f1c40f" stroke="#000000" stroke-width="2" d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z"></path></svg></div><div class="stat-item" style="text-align:center;background:rgba(255,255,255,.2);padding:15px;border-radius:15px;transition:all .3s ease;border:2px solid #000"><div class="stat-value" id="leagueInfo" style="font-size:28px;font-weight:700;color:#1a5f9e;text-shadow:2px 2px 4px rgba(0,0,0,.5),-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000;margin-bottom:5px">Sem Liga</div><div class="stat-label" style="font-size:16px;color:#ecf0f1;text-transform:uppercase;letter-spacing:1px">Liga</div><svg width="40" height="40" viewBox="0 0 24 24" style="margin-top:10px"><path fill="#3498db" stroke="#000000" stroke-width="2" d="M20.2,2H19.5H18C17.1,2 16,3 16,4H8C8,3 6.9,2 6,2H4.5H3.8H2V11C2,12 3,13 4,13H6.2C6.6,15 7.9,16.7 11,17V19.1C8.8,19.3 8,20.4 8,21.7V22H16V21.7C16,20.4 15.2,19.3 13,19.1V17C16.1,16.7 17.4,15 17.8,13H20C21,13 22,12 22,11V2H20.2M4,11V4H6V6V11C5.1,11 4.3,11 4,11M20,11C19.7,11 18.9,11 18,11V6V4H20V11Z"></path></svg></div><div class="stat-item" style="text-align:center;background:rgba(255,255,255,.2);padding:15px;border-radius:15px;transition:all .3s ease;border:2px solid #000"><div class="stat-value" id="moneyCount" style="font-size:28px;font-weight:700;color:#2ecc71;text-shadow:2px 2px 4px rgba(0,0,0,.5),-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000;margin-bottom:5px">0</div><div class="stat-label" style="font-size:16px;color:#ecf0f1;text-transform:uppercase;letter-spacing:1px">Moedas</div><svg width="40" height="40" viewBox="0 0 24 24" style="margin-top:10px"><path fill="#2ecc71" stroke="#000000" stroke-width="1" d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,17V16H9V14H13V13H10A1,1 0 0,1 9,12V9A1,1 0 0,1 10,8H11V7H13V8H15V10H11V11H14A1,1 0 0,1 15,12V15A1,1 0 0,1 14,16H13V17H11Z"></path></svg></div></div><div class="menu-container" style="display:grid;grid-template-columns:repeat(4,1fr);gap:15px;width:100%"><button class="menu-item" id="startGame" style="font-size:16px;padding:12px 20px;background:linear-gradient(45deg,#3498db,#2980b9);border:none;border-radius:25px;cursor:pointer;transition:all .3s ease;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:1px;box-shadow:0 5px 15px rgba(0,0,0,.2)">Iniciar Jogo</button><button class="menu-item" id="showEvents" style="font-size:16px;padding:12px 20px;background:linear-gradient(45deg,#4CAF50,#2E7D32);border:none;border-radius:25px;cursor:pointer;transition:all .3s ease;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:1px;box-shadow:0 5px 15px rgba(0,0,0,.2)" onclick="showAchievementsScreen()">Conquistas
+<script>
+// Sistema de conquistas
+const achievements = {
+  'novato': {
+    title: 'Novato',
+    description: 'Alcance a Liga Paia',
+    reward: 100,
+    league: 'Liga Paia',
+    claimed: false
+  },
+  'determinado': {
+    title: 'Determinado', 
+    description: 'Alcance a Liga Rebelde',
+    reward: 200,
+    league: 'Rebelde',
+    claimed: false
+  },
+  'promissor': {
+    title: 'Promissor',
+    description: 'Alcance a Liga Candidato',
+    reward: 300,
+    league: 'Candidato', 
+    claimed: false
+  },
+  'veterano': {
+    title: 'Veterano',
+    description: 'Alcance a Liga Patrão',
+    reward: 400,
+    league: 'Patrão',
+    claimed: false
+  },
+  'lendario': {
+    title: 'Lendário',
+    description: 'Alcance a Liga Soberana',
+    reward: 500,
+    league: 'Soberana',
+    claimed: false
+  },
+  'divino': {
+    title: 'Divino',
+    description: 'Alcance a Liga Estrelar',
+    reward: 600,
+    league: 'Estrelar',
+    claimed: false
+  },
+  'imortal': {
+    title: 'Imortal',
+    description: 'Alcance a Liga Maior Campeão',
+    reward: 700,
+    league: 'Liga Maior Campeão',
+    claimed: false
+  },
+  'celestial': {
+    title: 'Celestial',
+    description: 'Alcance a Liga Celeste',
+    reward: 800,
+    league: 'Celeste',
+    claimed: false
+  }
+};
+
+// Carregar estado das conquistas do localStorage
+function loadAchievements() {
+  const savedAchievements = localStorage.getItem('quantioAchievements');
+  if (savedAchievements) {
+    Object.assign(achievements, JSON.parse(savedAchievements));
+  }
+}
+
+// Salvar estado das conquistas no localStorage
+function saveAchievements() {
+  localStorage.setItem('quantioAchievements', JSON.stringify(achievements));
+}
+
+// Função para mostrar tela de conquistas
+function showAchievementsScreen() {
+  loadAchievements(); // Carrega o estado atual das conquistas
+  
+  lobby.style.display = 'none';
+  
+  // Criar/mostrar tela de conquistas se não existir
+  let achievementsScreen = document.getElementById('achievementsScreen');
+  if (!achievementsScreen) {
+    achievementsScreen = document.createElement('div');
+    achievementsScreen.id = 'achievementsScreen';
+    achievementsScreen.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(20,20,40,0.95), rgba(40,40,80,0.95));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px;
+      overflow-y: auto;
+      z-index: 1000;
+    `;
+    
+    // Título
+    const title = document.createElement('h2');
+    title.textContent = 'Conquistas';
+    title.style.cssText = `
+      font-size: 36px;
+      color: #f1c40f;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    `;
+    achievementsScreen.appendChild(title);
+    
+    // Container para as conquistas
+    const achievementsContainer = document.createElement('div');
+    achievementsContainer.style.cssText = `
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+    `;
+    
+    // Adicionar cada conquista
+    Object.entries(achievements).forEach(([key, achievement]) => {
+      const achievementCard = document.createElement('div');
+      achievementCard.style.cssText = `
+        background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+        border-radius: 15px;
+        padding: 20px;
+        border: 2px solid ${achievement.claimed ? '#4CAF50' : '#666'};
+        transition: transform 0.3s ease;
+      `;
+      
+      achievementCard.innerHTML = `
+        <h3 style="color: #f1c40f; margin-bottom: 10px;">${achievement.title}</h3>
+        <p style="color: #fff; margin-bottom: 15px;">${achievement.description}</p>
+        <p style="color: #4CAF50;">Recompensa: ${achievement.reward} moedas</p>
+        ${achievement.claimed ? 
+          '<span style="color: #4CAF50;">✓ Resgatado</span>' : 
+          '<button onclick="claimAchievement(\'' + key + '\')" style="background: #4CAF50; border: none; padding: 8px 16px; border-radius: 5px; color: white; cursor: pointer;">Resgatar</button>'
+        }
+      `;
+      
+      achievementsContainer.appendChild(achievementCard);
+    });
+    
+    achievementsScreen.appendChild(achievementsContainer);
+    
+    // Botão voltar
+    const backButton = document.createElement('button');
+    backButton.textContent = 'Voltar ao Lobby';
+    backButton.style.cssText = `
+      margin-top: 30px;
+      padding: 12px 24px;
+      background: linear-gradient(45deg, #3498db, #2980b9);
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    `;
+    backButton.onclick = () => {
+      achievementsScreen.style.display = 'none';
+      lobby.style.display = 'flex';
+    };
+    achievementsScreen.appendChild(backButton);
+    
+    document.body.appendChild(achievementsScreen);
+  } else {
+    achievementsScreen.style.display = 'flex';
+  }
+}
+
+// Função para resgatar conquista
+function claimAchievement(achievementKey) {
+  const achievement = achievements[achievementKey];
+  const currentLeague = leagueInfoElement.textContent.split(': ')[1].split(' (')[0];
+  
+  if (currentLeague === achievement.league && !achievement.claimed) {
+    money += achievement.reward;
+    achievement.claimed = true;
+    updateMoneyCount();
+    saveAchievements(); // Salva o estado das conquistas
+    saveGameState();
+    alert(`Parabéns! Você recebeu ${achievement.reward} moedas por conquistar "${achievement.title}"!`);
+    showAchievementsScreen(); // Atualiza a tela
+  } else if (achievement.claimed) {
+    alert('Você já resgatou esta conquista!');
+  } else {
+    alert('Você ainda não alcançou a liga necessária para esta conquista!');
+  }
+}
+
+// Carregar as conquistas quando o jogo iniciar
+window.addEventListener('load', loadAchievements);
+</script></button><button class="menu-item" id="showShop" style="font-size:16px;padding:12px 20px;background:linear-gradient(45deg,#2ecc71,#27ae60);border:none;border-radius:25px;cursor:pointer;transition:all .3s ease;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:1px;box-shadow:0 5px 15px rgba(0,0,0,.2)">Loja</button><button class="menu-item" id="showLeagues" style="
+  font-size: 16px;
+  padding: 15px 30px;
+  background: linear-gradient(45deg, #f39c12, #d35400);
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #fff;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 2px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.11"></path>
+    <path d="M15 7a3 3 0 1 0-6 0c0 1.77-.91 3.37-2 4.5a3 3 0 0 0 2 5.24h6a3 3 0 0 0 2-5.24C15.91 10.37 15 8.77 15 7z"></path>
+  </svg>
+  Ligas
+  <div style="
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: translateX(-100%);
+    animation: shimmer 2s infinite;
+  "></div>
+  <style>
+    @keyframes shimmer {
+      100% {
+        transform: translateX(100%);
+      }
+    }
+    
+    #showLeagues:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(243,156,18,0.4);
+      background: linear-gradient(45deg, #e67e22, #d35400);
+    }
+    
+    #showLeagues:active {
+      transform: translateY(1px) scale(0.98);
+    }
+  </style>
+</button><button class="menu-item" id="showStatistics" style="font-size:16px;padding:12px 20px;background:linear-gradient(45deg,#9b59b6,#8e44ad);border:none;border-radius:25px;cursor:pointer;transition:all .3s ease;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:1px;box-shadow:0 5px 15px rgba(0,0,0,.2)">Estatísticas</button><button class="menu-item" id="showExportImport" style="font-size:16px;padding:12px 20px;background:linear-gradient(45deg,#e74c3c,#c0392b);border:none;border-radius:25px;cursor:pointer;transition:all .3s ease;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:1px;box-shadow:0 5px 15px rgba(0,0,0,.2)">Exportar/Importar</button><button class="menu-item" id="claimDailyReward" style="font-size:16px;padding:12px 20px;background:linear-gradient(45deg,#1abc9c,#16a085);border:none;border-radius:25px;cursor:pointer;transition:all .3s ease;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:1px;box-shadow:0 5px 15px rgba(0,0,0,.2)">Recompensa Diária</button><button class="menu-item" id="showChestRewards" style="font-size:16px;padding:12px 20px;background:linear-gradient(45deg,#e67e22,#d35400);border:none;border-radius:25px;cursor:pointer;transition:all .3s ease;color:#fff;text-transform:uppercase;font-weight:700;letter-spacing:1px;box-shadow:0 5px 15px rgba(0,0,0,.2)">Recompensas de Baús</button></div></div><div id="leaguesScreen" style="display:none"><h2 style="font-size:36px;color:#f1c40f;text-shadow:2px 2px 4px rgba(0,0,0,.5);margin-bottom:20px;background:linear-gradient(45deg,#3498db,#2980b9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;padding:10px 20px;border:2px solid #2980b9;border-radius:10px;display:inline-block;transform:skew(-5deg)">Ligas e Troféus</h2><ul id="leaguesList"></ul><div class="menu-item" id="returnFromLeagues">Voltar ao Lobby</div></div><div id="shopScreen" style="display:none"><h2>Loja</h2><div id="moneyDisplay"></div><div id="shopItems" class="shop-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;padding:20px;background:linear-gradient(135deg,rgba(41,128,185,.1),rgba(52,152,219,.1));border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.1)"><style>.shop-grid h3{grid-column:1/-1;text-align:center;font-size:24px;color:#ecf0f1;text-shadow:2px 2px 4px rgba(0,0,0,.3);margin-bottom:20px;padding:10px;background:linear-gradient(45deg,#3498db,#2980b9);border-radius:10px;box-shadow:0 5px 15px rgba(52,152,219,.3)}.shop-item{background:linear-gradient(135deg,rgba(255,255,255,.1),rgba(255,255,255,.05));border-radius:15px;padding:20px;text-align:center;transition:all .3s ease;box-shadow:0 8px 20px rgba(0,0,0,.1);border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(10px)}.shop-item:hover{transform:translateY(-5px);box-shadow:0 12px 25px rgba(0,0,0,.2)}.shop-item-name{font-size:18px;font-weight:700;color:#ecf0f1;margin-bottom:10px}.shop-item-cost{font-size:16px;color:#3498db;font-weight:700}.contact-info{grid-column:1/-1;background:linear-gradient(135deg,rgba(41,128,185,.2),rgba(52,152,219,.2));padding:15px;border-radius:10px;margin-top:20px;text-align:center;box-shadow:0 5px 15px rgba(0,0,0,.1)}.contact-info p{margin:5px 0;color:#ecf0f1;font-size:16px}</style></div><div class="menu-item" id="returnFromShop">Voltar ao Lobby</div></div><div id="eventScreen" style="display:none">
+  <div style="
+    background: linear-gradient(135deg, rgba(41,128,185,0.9), rgba(52,152,219,0.9));
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+    text-align: center;
+    max-width: 600px;
+    width: 90%;
+    border: 2px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+  ">
+    <h2 style="
+      font-size: 36px;
+      color: #f1c40f;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      margin-bottom: 30px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    ">Evento Especial</h2>
+    
+    <div style="
+      background: rgba(0,0,0,0.2);
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      line-height: 1.6;
+      color: #fff;
+      font-size: 18px;
+    ">
+      <p>Sobreviva por 60 segundos em cada partida! Complete 9 vitórias antes de 3 derrotas para ganhar o torneio.</p>
+      <div style="
+        margin-top: 20px;
+        padding: 15px;
+        background: rgba(241,196,15,0.2);
+        border-radius: 10px;
+        font-weight: bold;
+      ">
+        Prêmio: 1500 moedas e um distintivo exclusivo de campeão do evento!
+      </div>
+    </div>
+    
+    <div style="
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 30px;
+      font-size: 24px;
+      color: #fff;
+    ">
+      <div>
+        <span>Vitórias: </span>
+        <span id="eventWins" style="color: #2ecc71; font-weight: bold;">0</span>
+        <span>/9</span>
+      </div>
+      <div>
+        <span>Derrotas: </span>
+        <span id="eventLosses" style="color: #e74c3c; font-weight: bold;">0</span>
+        <span>/3</span>
+      </div>
+    </div>
+    
+    <div style="
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    ">
+      <button id="startEvent" style="
+  padding: 15px 30px;
+  font-size: 18px;
+  background: linear-gradient(45deg, #808080, #666666);
+  border: none;
+  border-radius: 50px;
+  color: white;
+  cursor: not-allowed;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(128,128,128,0.3);
+  opacity: 0.7;
+" onclick="
+  alert('⚠️ Evento em Manutenção!\n\nO evento especial está temporariamente indisponível para ajustes e melhorias.\n\nVoltaremos em breve com novidades!');
+">Em Manutenção</button>
+      
+      <button id="returnFromEvent" style="
+        padding: 15px 30px;
+        font-size: 18px;
+        background: linear-gradient(45deg, #e74c3c, #c0392b);
+        border: none;
+        border-radius: 50px;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(231,76,60,0.3);
+      ">Voltar ao Lobby</button>
+    </div>
+  </div>
+</div><div id="exportImportScreen" style="display:none"><h2 style="font-size:36px;color:#f1c40f;text-shadow:2px 2px 4px rgba(0,0,0,.5);margin-bottom:30px;background:linear-gradient(45deg,#3498db,#2980b9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;padding:15px 30px;border:3px solid #2980b9;border-radius:15px;display:inline-block;transform:skew(-5deg);box-shadow:0 10px 20px rgba(0,0,0,.2);font-family:'Arial Black',sans-serif;letter-spacing:2px;text-transform:uppercase;position:relative;overflow:hidden">Exportar/Importar Dados<span style="position:absolute;top:-10px;right:-10px;width:30px;height:30px;background:#e74c3c;transform:rotate(45deg)"></span></h2><div style="display:flex;flex-direction:column;align-items:center;background:linear-gradient(135deg,rgba(41,128,185,.7),rgba(52,152,219,.7));padding:20px;border-radius:15px;box-shadow:0 10px 20px rgba(0,0,0,.2);margin-bottom:20px"><input type="text" id="moneyExportCode" placeholder="Código para exportar moedas" style="width:100%;max-width:300px;padding:12px;margin-bottom:15px;border:none;border-radius:8px;font-size:16px;background-color:rgba(255,255,255,.9);color:#333;transition:all .3s ease"><button id="exportMoneyButton" style="padding:12px 24px;background:linear-gradient(45deg,#27ae60,#2ecc71);border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s ease;text-transform:uppercase;letter-spacing:1px;box-shadow:0 4px 6px rgba(0,0,0,.1)">Exportar Moedas</button></div><div style="background:linear-gradient(135deg,rgba(41,128,185,.7),rgba(52,152,219,.7));padding:20px;border-radius:15px;box-shadow:0 10px 20px rgba(0,0,0,.2);margin-bottom:20px;display:flex;flex-direction:column;align-items:center"><input type="text" id="accountExportCode" placeholder="Código para exportar conta" style="width:100%;max-width:300px;padding:12px;margin-bottom:15px;border:none;border-radius:8px;font-size:16px;background-color:rgba(255,255,255,.9);color:#333;transition:all .3s ease"><button id="exportAccountButton" style="padding:12px 24px;background:linear-gradient(45deg,#e74c3c,#c0392b);border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s ease;text-transform:uppercase;letter-spacing:1px;box-shadow:0 4px 6px rgba(0,0,0,.1)">Exportar Conta Completa</button></div><textarea id="exportImportCode" rows="5" cols="50" placeholder="Cole o código aqui para importar" style="width:100%;max-width:600px;padding:15px;margin:20px 0;font-size:16px;border:2px solid #3498db;border-radius:10px;background-color:rgba(52,152,219,.1);color:#ecf0f1;resize:vertical;transition:all .3s ease;box-shadow:0 4px 6px rgba(0,0,0,.1)"></textarea><button id="importButton" style="padding:12px 24px;background:linear-gradient(45deg,#3498db,#2980b9);border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s ease;text-transform:uppercase;letter-spacing:1px;box-shadow:0 4px 6px rgba(0,0,0,.1);margin-top:15px"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:8px;vertical-align:middle"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>Importar Dados</button><div class="menu-item" id="returnFromExportImport">Voltar ao Lobby</div></div><div id="statisticsScreen" style="display:none"><h2 style="font-size:36px;color:#f1c40f;text-shadow:2px 2px 4px rgba(0,0,0,.5);margin-bottom:30px;background:linear-gradient(45deg,#3498db,#2980b9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;padding:15px 30px;border:3px solid #2980b9;border-radius:15px;display:inline-block;transform:skew(-5deg);box-shadow:0 10px 20px rgba(0,0,0,.2);font-family:'Arial Black',sans-serif;letter-spacing:2px;text-transform:uppercase;position:relative;overflow:hidden">Estatísticas<span style="position:absolute;top:-10px;right:-10px;width:30px;height:30px;background:#e74c3c;transform:rotate(45deg)"></span></h2><ul id="statisticsList"></ul><div class="menu-item" id="returnFromStatistics">Voltar ao Lobby</div></div><div id="chestRewardsScreen" style="display:none"><h2 style="
     font-size: 36px;
     font-weight: bold;
     color: #f1c40f;
